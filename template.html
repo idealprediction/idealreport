@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>{{ title }}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- for mobile -->
+	<link href="raleway-300-400-600.css" rel="stylesheet" type="text/css">
+	<link href="normalize.css" rel="stylesheet" type="text/css">
+	<link href="skeleton.css" rel="stylesheet" type="text/css">
+	<script src="plotly.min.js"></script>
+	<script src="plotting.js"></script>
+	<style>
+th,td {
+	padding: 6px 15px;
+}
+.centered {
+	text-align: center;
+}
+.alignRight {
+	text-align: right;
+}
+tfoot {
+	font-weight: bold;
+}
+tfoot td {
+	border-bottom: 0px;
+	border-top: 2px solid #E1E1E1;
+}
+	</style>
+</head>
+<body>
+	<div class="container">
+		{{ contents }}
+	</div>
+</body>
+</html>
