@@ -7,7 +7,7 @@ setup(
   author = 'Ideal Prediction',
   author_email = 'info@idealprediction.com',
   url = 'https://github.com/idealprediction/idealreport', 
-  download_url = 'https://github.com/idealprediction/idealreport/tarball/0.1', 
+  download_url = 'https://github.com/idealprediction/idealreport/tarball/0.11', 
   keywords = ['idealprediction', 'report'], 
   classifiers = [],
   package_data = {'idealreport': ['htmlLibs/*.*', 'template.html']},
