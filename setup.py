@@ -2,7 +2,7 @@ from setuptools import setup
 setup(
   name = 'idealreport',
   packages = ['idealreport'],
-  version = '0.1',
+  version = '0.11',
   description = 'Ideal Prediction reporting framework',
   author = 'Ideal Prediction',
   author_email = 'info@idealprediction.com',
