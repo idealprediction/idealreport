@@ -10,4 +10,8 @@ setup(
   download_url = 'https://github.com/idealprediction/idealreport/tarball/0.1', 
   keywords = ['idealprediction', 'report'], 
   classifiers = [],
+  package_data = {'idealreport': ['htmlLibs/*.*', 'template.html']},
+  include_package_data = True,
+  setup_requires = ['sphinx'],
+  install_requires = ['hjson', 'htmltag', 'pandas>=0.18'],
 )
