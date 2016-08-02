@@ -85,9 +85,10 @@ class Reporter(object):
         # html string
         self.h = ''  
         # wrapper for plots, including a reference to this reporter instance to store HTML
-        self.plotter = Plotter(self)
+        self.plot = Plotter(self)
         
     def pagebreak(self):
+        """ add a page break to the html """
         self.h += createhtml.pagebreak()
         
     #def plot(self):
