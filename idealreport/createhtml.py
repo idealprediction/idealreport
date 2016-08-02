@@ -10,10 +10,10 @@ import numpy as np
 
 
 # a counter used to assign each plot a unique ID
-nextPlotIndex = 1
+next_plot_index = 1
 
 
-def frequencyTable(itemCounts, name, sort=True, maxItems=10):
+def frequency_table(item_counts, name, sort=True, max_items=10):
     """ create a table of item frequencies """
 
     # create header
@@ -22,10 +22,10 @@ def frequencyTable(itemCounts, name, sort=True, maxItems=10):
 
     # add items
     trs = []
-    items = [(v, k) for (k, v) in itemCounts.items()]
+    items = [(v, k) for (k, v) in item_counts.items()]
     items.sort(reverse = True)
-    if len(items) > maxItems:
-        items = items[:maxItems]
+    if len(items) > max_items:
+        items = items[:max_items]
     for (value, key) in items:
         tr = htmltag.tr(htmltag.td(key), htmltag.td(str(value)))
         trs.append(tr)
@@ -38,117 +38,117 @@ def pagebreak():
     return htmltag.div('', style = "page-break-after:always;")
 
 
-def plot(plotSpec):
+def plot(plot_spec):
     """ create a plot by storing the data in a json file and returning HTML for displaying the plot """
-    global nextPlotIndex
+    global next_plot_index
     
     # compute an ID for this plot
-    id = 'plot%d' % nextPlotIndex
-    nextPlotIndex += 1
+    id = 'plot%d' % next_plot_index
+    next_plot_index += 1
     
     # make a copy of the plot spec (except data) so that we can re-generate a report without regenerating the plot specs
     # (converting the data frames will take place only in this copy)
-    dataSpecs = plotSpec.get('data', [])
-    plotSpec = {k:v for (k,v) in plotSpec.items() if k != 'data'} # copy all but data
-    plotSpec['data'] = []
+    data_specs = plot_spec.get('data', [])
+    plot_spec = {k:v for (k,v) in plot_spec.items() if k != 'data'} # copy all but data
+    plot_spec['data'] = []
     
     # get original value for timestamp type
-    timeX = (plotSpec.get('typeX', 'none') == 'timestamp')
+    time_x = (plot_spec.get('typeX', 'none') == 'timestamp')
     
     # convert data frames
-    for dataSpec in dataSpecs:
+    for ds in data_specs:
     
         # check for timestamp index
-        df = dataSpec['df']
-        timeDf = df.index.dtype == 'datetime64[ns]'
-        if timeX and not timeDf:
+        df = ds['df']
+        time_df = df.index.dtype == 'datetime64[ns]'
+        if time_x and not time_df:
             raise Exception( 'typeX is timestamp but df has non-timestamp index' )
-        if timeDf:
-            timeX = True
+        if time_df:
+            time_x = True
         
         # create new data spec with df converted to dict/lists for json
-        newDataSpec = {k:v for (k,v) in dataSpec.items() if k != 'df'} # copy all but df
-        newDataSpec['df'] = dataFrameToDict(df)
-        plotSpec['data'].append(newDataSpec)
+        new_data_spec = {k:v for (k,v) in ds.items() if k != 'df'} # copy all but df
+        new_data_spec['df'] = dataframe_to_dict(df)
+        plot_spec['data'].append(new_data_spec)
         
         # check timestamps
      
     # set timestamp type
-    if timeX:
-        plotSpec['typeX'] = 'timestamp'
+    if time_x:
+        plot_spec['typeX'] = 'timestamp'
             
     # check for out-of-date API calls
-    for dataSpec in dataSpecs:
-        if 'format' in dataSpec:
+    for ds in data_specs:
+        if 'format' in ds:
             print 'warning: format in data spec no longer supported'
 
     # create HTML
     h = htmltag.div('', id = id)
-    h += htmltag.script('var g_%s = %s;\ngeneratePlot("%s", g_%s);' % (id, json.dumps(plotSpec), id, id))
+    h += htmltag.script('var g_%s = %s;\ngeneratePlot("%s", g_%s);' % (id, json.dumps(plot_spec), id, id))
     return h
 
 
-def save(html, title, outputFileName):
+def save(html, title, output_file):
     """ save HTML output; copies files into the directory containing the output file """
-    global nextPlotIndex
+    global next_plot_index
     
     # the HTML library (css/js) path is relative to this module
-    libPath = os.path.dirname(__file__)
+    lib_path = os.path.dirname(__file__)
     
     # create output directory if needed
-    outputPath = os.path.dirname(outputFileName)
-    if not os.path.exists(outputPath):
-        os.makedirs(outputPath)
+    output_path = os.path.dirname(output_file)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
     
     # copy files referenced by HTML file into output directory
-    sourcePath = libPath + '/htmlLibs'
-    fileNames = os.listdir(sourcePath)
-    for fileName in fileNames:
-        shutil.copy(sourcePath + '/' + fileName, outputPath + '/' + fileName)
+    source_path = lib_path + '/htmlLibs'
+    file_list = os.listdir(source_path)
+    for fn in file_list:
+        shutil.copy(source_path + '/' + fn, output_path + '/' + fn)
     
     # fill the template
-    templateContents = open(libPath + '/template.html').read()
-    template = jinja2.Template(templateContents)
+    template_contents = open(lib_path + '/template.html').read()
+    template = jinja2.Template(template_contents)
     html = template.render(title = title, contents = str(html))
     
     # save the html file to disk
-    open(outputFileName, 'w').write(html)
+    open(output_file, 'w').write(html)
     
     # reset the plot counter
-    nextPlotIndex = 1
+    next_plot_index = 1
 
 
-def table(df, lastRowIsFooter=False, format=None):
+def table(df, last_row_is_footer=False, format=None):
     """ generate an HTML table from a pandas data frame """
     if not format:
         format = {}
     rowCount = len(df)
     
     # default column formatting
-    defaultFormat = {
+    default_format = {
         'align': 'right',
-        'decimalPlaces': 2,
+        'decimal_places': 2,
         'commas': True,
     }
     
     # a helper function to get column formatting
-    def getFormat(colName, attribute):
-        if colName in format and attribute in format[colName]:
-            value = format[colName][attribute]
+    def get_format(col_name, attribute):
+        if col_name in format and attribute in format[col_name]:
+            value = format[col_name][attribute]
         elif '*' in format and attribute in format['*']:
             value = format['*'][attribute]
         else:
-            value = defaultFormat[attribute]
+            value = default_format[attribute]
         return value
     
     # create header
     first = True
     items = []
-    for colName in df.columns:
-        if getFormat(colName, 'align') == 'right':
-            items.append(htmltag.th(colName, _class='alignRight'))
+    for col_name in df.columns:
+        if get_format(col_name, 'align') == 'right':
+            items.append(htmltag.th(col_name, _class='alignRight'))
         else:
-            items.append(htmltag.th(colName))
+            items.append(htmltag.th(col_name))
         first = False
     thead = htmltag.thead(htmltag.tr(*items))
         
@@ -163,20 +163,20 @@ def table(df, lastRowIsFooter=False, format=None):
         first = True
         items = []
         for j, v in enumerate(values):
-            colName = df.columns[j]
-            if isNumeric(v):
-                decimalPlaces = getFormat(colName, 'decimalPlaces')
-                if getFormat(colName, 'commas'):
-                    pattern = '{:,.' + str(decimalPlaces) + 'f}'
+            col_name = df.columns[j]
+            if is_numeric(v):
+                decimal_places = get_format(col_name, 'decimal_places')
+                if get_format(col_name, 'commas'):
+                    pattern = '{:,.' + str(decimal_places) + 'f}'
                 else:
-                    pattern = '{:.' + str(decimalPlaces) + 'f}'
+                    pattern = '{:.' + str(decimal_places) + 'f}'
                 v = pattern.format(v)
-            if getFormat(colName, 'align') == 'right':
+            if get_format(col_name, 'align') == 'right':
                 items.append(htmltag.td(v, _class='alignRight'))
             else:
                 items.append(htmltag.td(v))
             first = False
-        if lastRowIsFooter and i == rowCount - 1:
+        if last_row_is_footer and i == rowCount - 1:
             tfoot = htmltag.tfoot(htmltag.tr(*items))
         else:
             rows.append(htmltag.tr(*items))
@@ -187,7 +187,7 @@ def table(df, lastRowIsFooter=False, format=None):
 # ======== utility functions ========
 
 
-def dataFrameToDict(df):
+def dataframe_to_dict(df):
     """ convert a pandas DataFrame (or series) to a list of columns ready for conversion to JSON """
     columns = []
     if hasattr(df, 'columns'): # data frame
@@ -213,6 +213,6 @@ def dataFrameToDict(df):
     return columns
 
 
-def isNumeric(v):
+def is_numeric(v):
     """ check whether a value is numeric (could be float, int, or numpy numeric type) """
     return hasattr(v, '__sub__') and hasattr(v, '__mul__')
