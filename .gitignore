@@ -1,1 +1,4 @@
 *.pyc
+/build/
+/dist/
+/idealreport.egg-info/
