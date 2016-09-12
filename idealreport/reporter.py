@@ -94,6 +94,15 @@ class Reporter(object):
     #def plot(self):
     #    return self.plotWrap
 
+    def row(self):
+        """ add a row to the report (using the CSS grid) """
+        return Row(self)
+        
+    def col(self, size):
+        """ add a column to the report (using the CSS grid); 
+            size should be between 1 and 11 (the grid system uses 12 columns) """
+        return Column(self, size)
+    
     def _add_plot_labels(self, plot_dict, title, xlabel=None, ylabel=None):
         """ add standard labels to a plot dictionary - title is required """
         plot_dict['title'] = title
@@ -122,3 +131,34 @@ class Reporter(object):
         """ generate and save the report HTML """
         createhtml.save(self.h, self.title, self.output_file)
         print 'saved report to %s' % self.output_file    
+
+
+class Row(object):
+    """The Row class creates a row in the report using a CSS grid."""
+    
+    def __init__(self, reporter):
+        self._reporter = reporter
+        self._reporter.h += '<div class="row">\n'
+        
+    def __enter__(self):
+        pass
+
+    def __exit__(self, type, value, traceback):
+        self._reporter.h += '</div>\n'
+
+
+class Column(object):
+    """The Column class creates a col in the report using a CSS grid."""
+        
+    def __init__(self, reporter, size):
+        self._reporter = reporter
+        assert size >= 1 and size <= 11
+        col_sizes = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven']
+        size = col_sizes[size - 1]
+        self._reporter.h += '<div class="%s columns">\n' % size
+        
+    def __enter__(self):
+        pass
+        
+    def __exit__(self, type, value, traceback):
+        self._reporter.h += '</div>\n'
