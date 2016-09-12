@@ -17,6 +17,7 @@ recommended: phantomjs
 ```
 from datetime import datetime
 import os
+import htmltag
 from idealreport.reporter import Reporter
 from pandas import DataFrame
 # example P+L data - note: plots will use the index as the x axis 
