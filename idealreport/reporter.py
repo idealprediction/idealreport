@@ -1,5 +1,6 @@
 import htmltag
-from idealreport import createhtml
+from idealreport import create_html
+
 
 class Plotter(object):
     """ Class to wrap report plotting """
@@ -41,7 +42,9 @@ class Plotter(object):
 
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
-        self.reporter.h += createhtml.plot(plot_dict)
+        if self.reporter:
+            self.reporter.h += createhtml.plot(plot_dict)
+        return plot_dict
 
     def barh(self, df, title, xlabel=None, ylabel=None, stacked=False):
         """  plot a df as a horizontal bar plot 
@@ -49,7 +52,7 @@ class Plotter(object):
                 df (DataFrame)
                 title, xlabel, ylabel (str): title is required and others are optional
         """
-        self.bar(df, title, xlabel, ylabel, stacked, horizontal=True)
+        return self.bar(df, title, xlabel, ylabel, stacked, horizontal=True)
 
     def time(self, df, title, gap_time_format=None, xlabel=None, ylabel=None):
         """ plot a df as a timeseries 
@@ -74,7 +77,9 @@ class Plotter(object):
 
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
-        self.reporter.h += createhtml.plot(plot_dict)
+        if self.reporter:
+            self.reporter.h += createhtml.plot(plot_dict)
+        return plot_dict
 
 
 class Reporter(object):

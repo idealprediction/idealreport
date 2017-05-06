@@ -46,42 +46,8 @@ def plot(plot_spec):
     id = 'plot%d' % next_plot_index
     next_plot_index += 1
     
-    # make a copy of the plot spec (except data) so that we can re-generate a report without regenerating the plot specs
-    # (converting the data frames will take place only in this copy)
-    data_specs = plot_spec.get('data', [])
-    plot_spec = {k:v for (k,v) in plot_spec.items() if k != 'data'} # copy all but data
-    plot_spec['data'] = []
+    plot_spec = prep_plot_spec(plot_spec)
     
-    # get original value for timestamp type
-    time_x = (plot_spec.get('typeX', 'none') == 'timestamp')
-    
-    # convert data frames
-    for ds in data_specs:
-    
-        # check for timestamp index
-        df = ds['df']
-        time_df = df.index.dtype == 'datetime64[ns]'
-        if time_x and not time_df:
-            raise Exception( 'typeX is timestamp but df has non-timestamp index' )
-        if time_df:
-            time_x = True
-        
-        # create new data spec with df converted to dict/lists for json
-        new_data_spec = {k:v for (k,v) in ds.items() if k != 'df'} # copy all but df
-        new_data_spec['df'] = dataframe_to_dict(df)
-        plot_spec['data'].append(new_data_spec)
-        
-        # check timestamps
-     
-    # set timestamp type
-    if time_x:
-        plot_spec['typeX'] = 'timestamp'
-            
-    # check for out-of-date API calls
-    for ds in data_specs:
-        if 'format' in ds:
-            print 'warning: format in data spec no longer supported'
-
     # create HTML
     h = htmltag.div('', id = id)
     h += htmltag.script('var g_%s = %s;\ngeneratePlot("%s", g_%s);' % (id, json.dumps(plot_spec), id, id))
@@ -183,6 +149,50 @@ def table(df, last_row_is_footer=False, format=None):
     tbody = htmltag.tbody(*rows)
     return htmltag.table(thead, tbody, tfoot)
 
+    
+# ======== report spec functions ========
+
+
+def prep_plot_spec(plot_spec):
+
+    # make a copy of the plot spec (except data) so that we can re-generate a report without regenerating the plot specs
+    # (converting the data frames will take place only in this copy)
+    data_specs = plot_spec.get('data', [])
+    plot_spec = {k:v for (k,v) in plot_spec.items() if k != 'data'} # copy all but data
+    plot_spec['data'] = []
+    
+    # get original value for timestamp type
+    time_x = (plot_spec.get('typeX', 'none') == 'timestamp')
+    
+    # convert data frames
+    for ds in data_specs:
+    
+        # check for timestamp index
+        df = ds['df']
+        time_df = df.index.dtype == 'datetime64[ns]'
+        if time_x and not time_df:
+            raise Exception( 'typeX is timestamp but df has non-timestamp index' )
+        if time_df:
+            time_x = True
+        
+        # create new data spec with df converted to dict/lists for json
+        new_data_spec = {k:v for (k,v) in ds.items() if k != 'df'} # copy all but df
+        new_data_spec['df'] = dataframe_to_dict(df)
+        plot_spec['data'].append(new_data_spec)
+        
+        # check timestamps
+     
+    # set timestamp type
+    if time_x:
+        plot_spec['typeX'] = 'timestamp'
+            
+    # check for out-of-date API calls
+    for ds in data_specs:
+        if 'format' in ds:
+            print 'warning: format in data spec no longer supported'
+
+    return plot_spec
+    
 
 # ======== utility functions ========
 
