@@ -43,7 +43,7 @@ class Plotter(object):
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
-            self.reporter.h += createhtml.plot(plot_dict)
+            self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
     def barh(self, df, title, xlabel=None, ylabel=None, stacked=False):
@@ -78,7 +78,7 @@ class Plotter(object):
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
-            self.reporter.h += createhtml.plot(plot_dict)
+            self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
 
@@ -94,7 +94,7 @@ class Reporter(object):
         
     def pagebreak(self):
         """ add a page break to the html """
-        self.h += createhtml.pagebreak()
+        self.h += create_html.pagebreak()
         
     #def plot(self):
     #    return self.plotWrap
@@ -134,7 +134,7 @@ class Reporter(object):
         
     def generate(self):
         """ generate and save the report HTML """
-        createhtml.save(self.h, self.title, self.output_file)
+        create_html.save(self.h, self.title, self.output_file)
         print 'saved report to %s' % self.output_file    
 
 
