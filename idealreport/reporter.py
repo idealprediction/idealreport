@@ -5,7 +5,7 @@ from idealreport import create_html
 class Plotter(object):
     """ Class to wrap report plotting """
 
-    def __init__(self, reporter):
+    def __init__(self, reporter=None):
         """ store the Reporter instance to allow adding HTML to the report stored internally in Reporter"""
         self.reporter = reporter
 
