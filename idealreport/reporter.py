@@ -37,7 +37,8 @@ class Plotter(object):
 
         # dict() to store info for plotting
         plot_dict = {
-            'data': [{'df': df, 'type': plot_type, 'orientation': orientation, 'staticPlot': False}]
+            'data': [{'df': df, 'type': plot_type, 'orientation': orientation}],
+            'staticPlot': False
         }
 
         # plot labels + create HTML
@@ -53,6 +54,33 @@ class Plotter(object):
                 title, xlabel, ylabel (str): title is required and others are optional
         """
         return self.bar(df, title, xlabel, ylabel, stacked, horizontal=True)
+
+    def line(self, df, title, xlabel=None, ylabel=None, ):
+        # dict() to store info for plotting
+        plot_dict = {
+            'data': [{'df': df, 'type': 'line'}],
+            'staticPlot': False
+        }
+
+        # plot labels + create HTML
+        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
+
+
+    def scatter(self, df, title, xlabel=None, ylabel=None, ):
+        # dict() to store info for plotting
+        plot_dict = {
+            'data': [{'df': df, 'type': 'scatter'}],
+            'staticPlot': False
+        }
+
+        # plot labels + create HTML
+        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
 
     def time(self, df, title, gap_time_format=None, xlabel=None, ylabel=None):
         """ plot a df as a timeseries 
@@ -73,6 +101,7 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'line'}],
+            'staticPlot': False
         }
 
         # plot labels + create HTML
