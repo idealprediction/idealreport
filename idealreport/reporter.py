@@ -69,6 +69,24 @@ class Plotter(object):
         return plot_dict
 
 
+    def multi(self, dfs, types, title, xlabel=None, ylabel=None, ):
+        data = []
+        for i in range(len(dfs)):    
+            data.append({'df':dfs[i], 'type':types[i]})
+
+
+        # dict() to store info for plotting
+        plot_dict = {
+            'data': data,
+            'staticPlot': False
+        }
+
+        # plot labels + create HTML
+        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
+
     def scatter(self, df, title, xlabel=None, ylabel=None, ):
         # dict() to store info for plotting
         plot_dict = {
