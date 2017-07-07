@@ -9,13 +9,15 @@ class Plotter(object):
         """ store the Reporter instance to allow adding HTML to the report stored internally in Reporter"""
         self.reporter = reporter
 
-    def _add_labels(self, plot_dict, title, xlabel=None, ylabel=None):
+    def _add_labels(self, plot_dict, title, xlabel=None, ylabel=None, y2label=None):
         """ add standard labels to a plot dictionary - title is required """
         plot_dict['title'] = title
         if xlabel is not None:
             plot_dict['x'] = {'label': xlabel}
         if ylabel is not None:
             plot_dict['y'] = {'label': ylabel}
+        if y2label is not None:
+            plot_dict['y2'] = {'label': y2label}
         return plot_dict
 
     def bar(self, df, title, xlabel=None, ylabel=None, stacked=False, horizontal=False):
@@ -55,7 +57,7 @@ class Plotter(object):
         """
         return self.bar(df, title, xlabel, ylabel, stacked, horizontal=True)
 
-    def line(self, df, title, xlabel=None, ylabel=None, ):
+    def line(self, df, title, xlabel=None, ylabel=None):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'line'}],
@@ -69,10 +71,13 @@ class Plotter(object):
         return plot_dict
 
 
-    def multi(self, dfs, types, title, xlabel=None, ylabel=None, ):
+    def multi(self, dfs, types, title, xlabel=None, ylabel=None, y2_axis=None, y2label=None):
         data = []
-        for i in range(len(dfs)):    
-            data.append({'df':dfs[i], 'type':types[i]})
+        for i in range(len(dfs)):
+            if y2_axis == None:
+                data.append({'df':dfs[i], 'type':types[i]})
+            else:
+                data.append({'df':dfs[i], 'type':types[i], 'y2':y2_axis[i]})
 
 
         # dict() to store info for plotting
@@ -82,7 +87,7 @@ class Plotter(object):
         }
 
         # plot labels + create HTML
-        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
+        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel, y2label)
         if self.reporter:
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
