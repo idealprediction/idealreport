@@ -173,13 +173,39 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			dataItem.name = dataSpec.name || columns[0].name; // use column name if no spec name specified
 			data.push(dataItem);
 		}
+
+		// handle OHLC
+		if (dataSpec.type === 'ohlc') {
+			// do nothing in this loop the data is set below
+		}
+	}
+
+	// data for OHLC: all 4 columns are elements in 1 data object (data above is n columns to n data objects)
+	if (dataSpec.type === 'ohlc') {
+		// reset the data object and populate the x axis with the timeseries index
+		var data = []
+		var dataItem = {
+			x: columns[0].values, // time
+		}
+
+		// data for OHLC: loop over the columns to set the elements: open, high, low, close
+		// TODO assert(plotSpec.data.length == 1)
+		// TODO assert(columns.length == 4)
+		var dataSpec = plotSpec.data[0];
+		var columns = dataSpec.df;
+		for (var j = 1; j < columns.length; j++) {
+			dataItem[columns[j].name] = columns[j].values // dataItem[close] = df[close], etc
+		};
+		// use index (i.e. column[0] name if no spec name specified
+		dataItem.name = plotSpec.name || columns[0].name;
+		dataItem.type = 'ohlc';
+		data.push(dataItem);
 	}
 	
 	// handle timestamps
 	if (plotSpec.typeX === 'timestamp') {
 		for (var i = 0; i < data.length; i++) {
 			var x = data[i].x;
-			console.log(x);
 			var newX = [];
 			var len = x.length;
 			for (var j = 0; j < len; j++) {
@@ -187,7 +213,6 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			}
 			layout.xaxis.type = 'date'
 			data[i].x = newX;
-			console.log(newX);
 		}
 	}
 	
