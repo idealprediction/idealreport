@@ -301,7 +301,18 @@ function generateHeatMap(plotDiv, plotSpec) {
 			z: plotSpec.z,
 		}
 	];
+
+	// colorscale 
+	if (plotSpec.colorscale) {
+		data[0]['colorscale'] = plotSpec.colorscale;
+	}
 	
+	// include colorbar side scale
+	var showscale = true;
+	if (plotSpec.showscale !== undefined) {
+		data[0]['showscale'] = plotSpec.showscale;
+	}
+
 	// create layout object
 	var layout = { 
 		xaxis: { 
