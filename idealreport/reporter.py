@@ -70,7 +70,7 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def ohlc(self, df, title, xlabel=None, ylabel=None ):
+    def ohlc(self, df, title, series_name = '', xlabel=None, ylabel=None ):
         """timeseries OHLC
             Args:
                 df (DataFrame) requires columns open, high, low, close
@@ -79,12 +79,13 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'ohlc'}],
-            'staticPlot': False
+            'staticPlot': False,
+            'name': series_name
         }
 
         # legend name from the df name
-        if df.name is not None:
-            plot_dict['name'] = df.name
+        #if df.name is not None:
+        #    plot_dict['name'] = df.name
 
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
@@ -113,12 +114,21 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def scatter(self, df, title, xlabel=None, ylabel=None, ):
+    def scatter(self, df, title, xlabel=None, ylabel=None, margin=None, markers=None, hide_legend=False):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'scatter'}],
             'staticPlot': False
         }
+
+        if markers is not None:
+            plot_dict['markers'] = markers
+
+        if margin is not None:
+            plot_dict['margin'] = margin
+
+        if hide_legend:
+            plot_dict['hide_legend'] = hide_legend
 
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
