@@ -114,6 +114,29 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
+    def pie(self, df, title, hole=None, margin=None, height=None):
+
+        if hole is not None:
+            plot_dict = {
+                'data': [{'df': df, 'type': 'pie', 'hole': hole}], 
+                'staticPlot': False,
+            }
+        else:
+            plot_dict = {
+                'data': [{'df': df, 'type': 'pie'}],
+                'staticPlot': False,
+            }
+
+        if height is not None:
+            plot_dict['height'] = height
+
+        # plot labels + create HTML
+        plot_dict = self._add_labels(plot_dict, title)        
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
+
+
     def scatter(self, df, title, xlabel=None, ylabel=None, margin=None, markers=None, hide_legend=False):
         # dict() to store info for plotting
         plot_dict = {

@@ -20,6 +20,10 @@ function generatePlot(id, plotSpec) {
 	}
 }
 
+//if (plotSpec.type === 'pie') {
+		//generatePieChart(plotDiv, plotSpec);
+	//} else
+
 
 function generateGenericPlot(plotDiv, plotSpec) {
 	
@@ -41,8 +45,15 @@ function generateGenericPlot(plotDiv, plotSpec) {
 		layout.height = plotSpec.height;
 	}
 	
+	if (plotSpec.hide_legend) {
+		layout.showlegend = false;
+	}
+
 	// create data object
 	var data = [];
+
+	//if !(dataSpec.type == 'pie' || dataSpec.type == 'ohlc')
+
 	for (var i = 0; i < plotSpec.data.length; i++) {
 		var dataSpec = plotSpec.data[i];
 		var columns = dataSpec.df;
@@ -60,6 +71,10 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			}; // fix(soon): initialize dataItem with copy of dataSpec so no need to copy individual attributes
 			if (dataSpec.name) { 
 				dataItem.name = dataSpec.name;
+			}
+
+			if (plotSpec.markers) {
+				dataItem.marker = plotSpec.markers[j-1];
 			}
 			
 			// if error bars, add them
@@ -201,7 +216,29 @@ function generateGenericPlot(plotDiv, plotSpec) {
 		dataItem.type = 'ohlc';
 		data.push(dataItem);
 	}
-	
+
+	if (dataSpec.type === 'pie') {
+		// reset the data object and populate with labels and values
+		var data = []
+		var dataItem = {
+			labels: columns[0].values,
+			values: columns[1].values,
+			type: 'pie'
+		};
+
+		if (dataSpec.hole) {
+			dataItem['hole'] = dataSpec.hole;
+		}
+
+		delete dataItem['x'];
+		delete dataItem['y'];
+		
+		delete layout['xaxis'];
+		delete layout['yaxis'];
+
+		data.push(dataItem);
+	}
+
 	// handle timestamps
 	if (plotSpec.typeX === 'timestamp') {
 		for (var i = 0; i < data.length; i++) {
