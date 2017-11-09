@@ -108,15 +108,40 @@ def table(df, last_row_is_footer=False, format=None):
         return value
     
     # create header
-    first = True
     items = []
-    for col_name in df.columns:
-        if get_format(col_name, 'align') == 'right':
-            items.append(htmltag.th(col_name, _class='alignRight'))
-        else:
-            items.append(htmltag.th(col_name))
-        first = False
-    thead = htmltag.thead(htmltag.tr(*items))
+    if isinstance(df.columns[0], tuple):
+        headers = []
+        prev_header = df.columns[0][0]
+        span = 0
+        for i, col_name in enumerate(df.columns):
+            h1 = col_name[0]
+            h2 = col_name[1]
+            if h1 == prev_header:
+                span += 1
+                if i == (len(df.columns)-1):
+                    headers.append(htmltag.th(h1, colspan=span, _class='centered'))
+            else:
+                headers.append(htmltag.th(prev_header, colspan=span, _class='centered'))
+                if i == (len(df.columns)-1):
+                    headers.append(htmltag.th(h1, colspan=1))
+                else:
+                    prev_header = h1
+                    span = 1
+
+            if get_format(col_name, 'align') == 'right':
+                items.append(htmltag.th(h2, _class='alignRight'))
+            else:
+                items.append(htmltag.th(h2))
+        thead = htmltag.thead(htmltag.tr(*headers),htmltag.tr(*items))
+
+    else:
+        for col_name in df.columns:
+            if get_format(col_name, 'align') == 'right':
+                items.append(htmltag.th(col_name, _class='alignRight'))
+            else:
+                items.append(htmltag.th(col_name))
+
+        thead = htmltag.thead(htmltag.tr(*items))
         
     # create body (and optionally footer)
     tfoot = ''
@@ -126,7 +151,6 @@ def table(df, last_row_is_footer=False, format=None):
         if False: # 
             tf = t.tfoot
             tr = tf.tr
-        first = True
         items = []
         for j, v in enumerate(values):
             col_name = df.columns[j]
@@ -141,7 +165,6 @@ def table(df, last_row_is_footer=False, format=None):
                 items.append(htmltag.td(v, _class='alignRight'))
             else:
                 items.append(htmltag.td(v))
-            first = False
         if last_row_is_footer and i == rowCount - 1:
             tfoot = htmltag.tfoot(htmltag.tr(*items))
         else:
