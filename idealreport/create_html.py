@@ -84,7 +84,7 @@ def save(html, title, output_file):
     next_plot_index = 1
 
 
-def table(df, last_row_is_footer=False, format=None):
+def table(df, sortable=False, last_row_is_footer=False, format=None):
     """ generate an HTML table from a pandas data frame """
     if not format:
         format = {}
@@ -137,9 +137,15 @@ def table(df, last_row_is_footer=False, format=None):
     else:
         for col_name in df.columns:
             if get_format(col_name, 'align') == 'right':
-                items.append(htmltag.th(col_name, _class='alignRight'))
+                if sortable:
+                    items.append(htmltag.th(col_name, **{'class':'alignRight', 'data-sortable':'true'}))
+                else: 
+                    items.append(htmltag.th(col_name, _class='alignRight'))
             else:
-                items.append(htmltag.th(col_name))
+                if sortable:
+                    items.append(htmltag.th(col_name, **{'data-sortable':'true'}))
+                else:
+                    items.append(htmltag.th(col_name))
 
         thead = htmltag.thead(htmltag.tr(*items))
         
@@ -170,7 +176,13 @@ def table(df, last_row_is_footer=False, format=None):
         else:
             rows.append(htmltag.tr(*items))
     tbody = htmltag.tbody(*rows)
-    return htmltag.table(thead, tbody, tfoot)
+    if sortable:
+        if rowCount > 15:
+            return htmltag.table(thead, tbody, tfoot, **{'class':'bs-table', 'data-striped':'true', 'data-height':'600'})
+        else:
+            return htmltag.table(thead, tbody, tfoot, **{'class':'bs-table', 'data-striped':'true'})
+    else:
+        return htmltag.table(thead, tbody, tfoot)
 
     
 # ======== report spec functions ========
