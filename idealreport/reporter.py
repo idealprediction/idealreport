@@ -21,9 +21,9 @@ class Plotter(object):
         return plot_dict
 
     def bar(self, df, title, xlabel=None, ylabel=None, stacked=False, horizontal=False):
-        """  plot a df as a bar plot 
+        """ plot a df as a bar chart
             Args:
-                df (DataFrame)
+                df (DataFrame): df with index as x axis
                 title, xlabel, ylabel (str): title is required and others are optional
         """
 
@@ -50,14 +50,58 @@ class Plotter(object):
         return plot_dict
 
     def barh(self, df, title, xlabel=None, ylabel=None, stacked=False):
-        """  plot a df as a horizontal bar plot 
+        """ plot a df as a horizontal bar chart
             Args:
-                df (DataFrame)
+                df (DataFrame): df with index as y axis
                 title, xlabel, ylabel (str): title is required and others are optional
         """
         return self.bar(df, title, xlabel, ylabel, stacked, horizontal=True)
 
+    def errbar(self, df, title, xlabel=None, ylabel=None, symmetric=True):
+        """ plot a df as an error bar chart
+            Args:
+                df (DataFrame): df with index as x axis, column 1 as y value, column 2 as positive (or symmetric) error, column 3 as negative (optional) error
+                title, xlabel, ylabel (str): title is required and others are optional
+        """
+
+        # dict() to store info for plotting
+        plot_dict = {
+            'data': [{'df': df, 'type': 'scatter', 'errorBars': {'symmetric': symmetric,}}],
+            'staticPlot': False
+        }
+
+        # plot labels + create HTML
+        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
+
+    def errline(self, df, title, xlabel=None, ylabel=None, fillcolor='rgba(0,100,80,0.2)'):
+        """ plot a df as a continuous error line chart
+            Args:
+                df (DataFrame): df with index as x axis, column 1 as y value, column 2 as symmetric error
+                title, xlabel, ylabel (str): title is required and others are optional
+                fillcolor (str rgba()): rgba value for fill, default is 'rgba(0,100,80,0.2)'
+        """
+
+        # dict() to store info for plotting
+        plot_dict = {
+            'data': [{'df': df, 'type': 'continuousErrorBars', 'fillcolor':fillcolor}],
+            'staticPlot': False
+        }
+
+        # plot labels + create HTML
+        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
+
     def line(self, df, title, xlabel=None, ylabel=None):
+        """ plot a df as a line plot 
+            Args:
+                df (DataFrame): df with index as x axis
+                title, xlabel, ylabel (str): title is required and others are optional
+        """
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'line'}],
@@ -70,30 +114,15 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def ohlc(self, df, title, series_name = '', xlabel=None, ylabel=None ):
-        """timeseries OHLC
-            Args:
-                df (DataFrame) requires columns open, high, low, close
-                title, xlabel, ylabel (str): title is required and others are optional
-        """
-        # dict() to store info for plotting
-        plot_dict = {
-            'data': [{'df': df, 'type': 'ohlc'}],
-            'staticPlot': False,
-            'name': series_name
-        }
-
-        # legend name from the df name
-        #if df.name is not None:
-        #    plot_dict['name'] = df.name
-
-        # plot labels + create HTML
-        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
-        if self.reporter:
-            self.reporter.h += create_html.plot(plot_dict)
-        return plot_dict
-
     def multi(self, dfs, types, title, xlabel=None, ylabel=None, y2_axis=None, y2label=None):
+        """ plot multiple plot types on the same plot 
+            Args:
+                dfs (list of DataFrames)
+                types (list of strings): list of plot types corresponding to dfs
+                title, xlabel, ylabel (str): title is required and others are optional
+                y2_axis (list of booleans): booleans indicating whether y values should be plotted on secondary y axis (optional)
+                y2label (str): label for secondary y axis (optional)
+        """
         data = []
         for i in range(len(dfs)):
             if y2_axis == None:
@@ -114,8 +143,32 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def pie(self, df, title, hole=None, margin=None, height=None):
+    def ohlc(self, df, title, series_name = '', xlabel=None, ylabel=None ):
+        """ timeseries OHLC
+            Args:
+                df (DataFrame): df requires columns open, high, low, close
+                title, xlabel, ylabel (str): title is required and others are optional
+        """
+        # dict() to store info for plotting
+        plot_dict = {
+            'data': [{'df': df, 'type': 'ohlc'}],
+            'staticPlot': False,
+            'name': series_name
+        }
 
+        # plot labels + create HTML
+        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
+
+    def pie(self, df, title, hole=None, margin=None, height=None):
+        """ plot a df as a pie chart 
+            Args:
+                df (DataFrame): df with index as label / category, first column as value
+                title (str): title is required and others are optional
+                hole (num [0-1]): percentage of pie to cut out for donut (optional)
+        """
         if hole is not None:
             plot_dict = {
                 'data': [{'df': df, 'type': 'pie', 'hole': hole}], 
@@ -138,6 +191,11 @@ class Plotter(object):
 
 
     def scatter(self, df, title, xlabel=None, ylabel=None, margin=None, markers=None, hide_legend=False):
+        """ plot a df as a scatter plot 
+            Args:
+                df (DataFrames): df with index as x axis
+                title, xlabel, ylabel (str): title is required and others are optional
+        """
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'scatter'}],
@@ -162,7 +220,7 @@ class Plotter(object):
     def time(self, df, title, gap_time_format=None, xlabel=None, ylabel=None):
         """ plot a df as a timeseries 
             Args:
-                df (DataFrame)
+                df (DataFrame): df with index as x axis
                 gap_time_format (str): If specified, then skip gaps and format timestamps using this str
                 title, xlabel, ylabel (str): title is required and others are optional
         """
