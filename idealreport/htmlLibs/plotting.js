@@ -158,6 +158,15 @@ function generateGenericPlot(plotDiv, plotSpec) {
 				dataItem.y = x;
 			}
 			
+			// handle histograms
+			if (dataSpec.type === 'histogram') {
+				var dataItem = JSON.parse(JSON.stringify(dataSpec)); // make copy; assumes just simple data
+				delete dataItem['df'];
+				dataItem.x = columns[j].values;
+				dataItem.name = dataSpec.name || columns[j].name; // use column name if no spec name specified
+			}
+
+
 			// handle 2d histograms
 			if (dataItem.type === 'histogram2d') {
 				if (plotSpec.x && plotSpec.x.bins) {
@@ -178,14 +187,6 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			if (dataItem.type === 'scatter' && !dataItem.mode && dataSpec.type !== 'continuousErrorBars') {
 				dataItem.mode = 'markers';
 			}
-			data.push(dataItem);
-		}
-		
-		// handle histograms
-		if (dataSpec.type === 'histogram') {
-			var dataItem = JSON.parse(JSON.stringify(dataSpec)); // make copy; assumes just simple data
-			dataItem.x = columns[0].values;
-			dataItem.name = dataSpec.name || columns[0].name; // use column name if no spec name specified
 			data.push(dataItem);
 		}
 

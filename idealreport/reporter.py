@@ -96,6 +96,28 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
+    def histo(self, df, title, xlabel=None, ylabel=None):
+        """ plot a df as a histogram
+            Args:
+                df (DataFrame): df with index as x axis
+                title, xlabel, ylabel (str): title is required and others are optional
+        """
+
+        # stacked vs normal bar plots
+        plot_type = 'histogram'
+
+        # dict() to store info for plotting
+        plot_dict = {
+            'data': [{'df': df, 'type': plot_type}],
+            'staticPlot': False
+        }
+
+        # plot labels + create HTML
+        plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
+
     def line(self, df, title, xlabel=None, ylabel=None):
         """ plot a df as a line plot 
             Args:
