@@ -96,7 +96,7 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def histo(self, df, title, xlabel=None, ylabel=None):
+    def histo(self, df, title, xlabel=None, ylabel=None, layout=None):
         """ plot a df as a histogram
             Args:
                 df (DataFrame): df with index as x axis
@@ -111,6 +111,10 @@ class Plotter(object):
             'data': [{'df': df, 'type': plot_type}],
             'staticPlot': False
         }
+
+        if layout is not None:
+            for k, v in layout.items():
+                plot_dict[k] = v
 
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)

@@ -44,7 +44,9 @@ function generateGenericPlot(plotDiv, plotSpec) {
 	if (plotSpec.height) {
 		layout.height = plotSpec.height;
 	}
-	
+	if (plotSpec.width) {
+		layout.width = plotSpec.width;
+	}
 	if (plotSpec.hide_legend) {
 		layout.showlegend = false;
 	}
