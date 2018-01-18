@@ -78,6 +78,18 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			if (plotSpec.markers) {
 				dataItem.marker = plotSpec.markers[j-1];
 			}
+
+			if (plotSpec.lines) {
+				dataItem.line = plotSpec.lines[j-1];
+			}
+
+			if (plotSpec.widths) {
+				dataItem.width = plotSpec.widths[j-1];
+			}
+
+			if (plotSpec.opacities) {
+				dataItem.opacity = plotSpec.opacities[j-1];
+			}
 			
 			// if error bars, add them
 			if (dataSpec.errorBars) {
@@ -166,6 +178,9 @@ function generateGenericPlot(plotDiv, plotSpec) {
 				delete dataItem['df'];
 				dataItem.x = columns[j].values;
 				dataItem.name = dataSpec.name || columns[j].name; // use column name if no spec name specified
+				if (plotSpec.markers) {
+					dataItem.marker = plotSpec.markers[j-1];
+				}
 			}
 
 
@@ -179,10 +194,16 @@ function generateGenericPlot(plotDiv, plotSpec) {
 				}
 			}
 			
-			// provide a default mode for scatter plots
+			// provide a default mode for stacked bar charts
 			if (dataItem.type === 'stackedBar') {
 				dataItem.type = 'bar';
 				layout.barmode = 'stack';
+			}
+
+			// provide a default mode for overlay bar charts
+			if (dataItem.type === 'overlayBar') {
+				dataItem.type = 'bar';
+				layout.barmode = 'overlay';
 			}
 			
 			// provide a default mode for scatter plots
