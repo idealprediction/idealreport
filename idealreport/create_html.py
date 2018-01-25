@@ -95,6 +95,7 @@ def table(df, sortable=False, last_row_is_footer=False, format=None):
         'align': 'right',
         'decimal_places': 2,
         'commas': True,
+        'width': None,
     }
     
     # a helper function to get column formatting
@@ -169,6 +170,10 @@ def table(df, sortable=False, last_row_is_footer=False, format=None):
                 v = pattern.format(v)
             if get_format(col_name, 'align') == 'right':
                 items.append(htmltag.td(v, _class='alignRight'))
+            #width = get_format(col_name, 'width')
+            #if is_numeric(width):
+            #    style='width:' + str(width) + 'px'
+            #    items.append(htmltag.td(v, style=style ))
             else:
                 items.append(htmltag.td(v))
         if last_row_is_footer and i == rowCount - 1:
@@ -182,7 +187,7 @@ def table(df, sortable=False, last_row_is_footer=False, format=None):
         else:
             return htmltag.table(thead, tbody, tfoot, **{'class':'bs-table', 'data-striped':'true'})
     else:
-        return htmltag.table(thead, tbody, tfoot)
+        return htmltag.table(thead, tbody, tfoot, **{'class':'table-striped'})
 
     
 # ======== report spec functions ========
