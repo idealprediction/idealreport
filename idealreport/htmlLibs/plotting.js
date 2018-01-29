@@ -29,7 +29,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 	
 	// default layout: copy any attributes from axis spec
 	var layout = { xaxis: {}, yaxis: {} /*, margin: { t: 0, r: 0 } */ };
-	if (plotSpec.x) {
+	/*if (plotSpec.x) {
 		layout.xaxis = plotSpec.x;
 	}
 	if (plotSpec.y) {
@@ -49,6 +49,10 @@ function generateGenericPlot(plotDiv, plotSpec) {
 	}
 	if (plotSpec.hide_legend) {
 		layout.showlegend = false;
+	}*/
+
+	if (plotSpec.layout) {
+		layout = plotSpec.layout;
 	}
 
 	// create data object
@@ -277,6 +281,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 		}
 	}
 	
+	/*
 	// old code for axis formatting
 	// fix(clean): remove this
 	if (plotSpec.labelX) {
@@ -330,7 +335,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 	}
 	if (plotSpec.y2) {
 		processAxis(plotSpec.y2, layout.yaxis2);
-	}
+	}*/
 	
 	// other layout
 	if (plotSpec.title) {
@@ -347,7 +352,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 	}
 	
 	// create the plot
-	Plotly.newPlot(plotDiv, data, layout, {staticPlot: staticPlot});
+	Plotly.newPlot(plotDiv, data, layout);//, {staticPlot: staticPlot});
 }
 
 

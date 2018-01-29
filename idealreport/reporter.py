@@ -11,7 +11,8 @@ class Plotter(object):
 
     def _add_labels(self, plot_dict, title, xlabel=None, ylabel=None, y2label=None):
         """ add standard labels to a plot dictionary - title is required """
-        plot_dict['title'] = title
+        if title is not None:
+            plot_dict['title'] = title
         if xlabel is not None:
             plot_dict['x'] = {'label': xlabel}
         if ylabel is not None:
@@ -20,7 +21,7 @@ class Plotter(object):
             plot_dict['y2'] = {'label': y2label}
         return plot_dict
 
-    def bar(self, df, title, xlabel=None, ylabel=None, stacked=False, horizontal=False, markers=None, layout=None):
+    def bar(self, df, title=None, xlabel=None, ylabel=None, stacked=False, horizontal=False, markers=None, layout=None):
         """ plot a df as a bar chart
             Args:
                 df (DataFrame): df with index as x axis
@@ -46,21 +47,24 @@ class Plotter(object):
         if markers is not None:
             plot_dict['markers'] = markers
 
+        if layout is not None:
+            plot_dict['layout'] = layout
+
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def barh(self, df, title, xlabel=None, ylabel=None, stacked=False, markers=None, widths=None, layout=None):
+    def barh(self, df, title=None, xlabel=None, ylabel=None, stacked=False, markers=None, widths=None, layout=None):
         """ plot a df as a horizontal bar chart
             Args:
                 df (DataFrame): df with index as y axis
                 title, xlabel, ylabel (str): title is required and others are optional
         """
-        return self.bar(df=df, title=title, xlabel=xlabel, ylabel=ylabel, stacked=stacked, horizontal=True, markers=markers)
+        return self.bar(df=df, title=title, xlabel=xlabel, ylabel=ylabel, stacked=stacked, horizontal=True, markers=markers, layout=layout)
 
-    def baro(self, df, title, xlabel=None, ylabel=None, orientation='v', markers=None, widths=None, opacities=None, layout=None):
+    def baro(self, df, title=None, xlabel=None, ylabel=None, orientation='v', markers=None, widths=None, opacities=None, layout=None):
         """ plot a df as an overlay bar chart
             Args:
                 df (DataFrame): df with index as x axis for vertical, y axis for horizontal
@@ -84,15 +88,14 @@ class Plotter(object):
             plot_dict['opacities'] = opacities        
 
         if layout is not None:
-            for k, v in layout.items():
-                plot_dict[k] = v
+            plot_dict['layout'] = layout
 
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def errbar(self, df, title, xlabel=None, ylabel=None, symmetric=True):
+    def errbar(self, df, title=None, xlabel=None, ylabel=None, symmetric=True, layout=None):
         """ plot a df as an error bar chart
             Args:
                 df (DataFrame): df with index as x axis, column 1 as y value, column 2 as positive (or symmetric) error, column 3 as negative (optional) error
@@ -105,13 +108,16 @@ class Plotter(object):
             'staticPlot': False
         }
 
+        if layout is not None:
+            plot_dict['layout'] = layout
+
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def errline(self, df, title, xlabel=None, ylabel=None, fillcolor='rgba(0,100,80,0.2)'):
+    def errline(self, df, title=None, xlabel=None, ylabel=None, fillcolor='rgba(0,100,80,0.2)', layout=None):
         """ plot a df as a continuous error line chart
             Args:
                 df (DataFrame): df with index as x axis, column 1 as y value, column 2 as symmetric error
@@ -125,13 +131,16 @@ class Plotter(object):
             'staticPlot': False
         }
 
+        if layout is not None:
+            plot_dict['layout'] = layout
+
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def histo(self, df, title, xlabel=None, ylabel=None, markers=None, layout=None):
+    def histo(self, df, title=None, xlabel=None, ylabel=None, markers=None, layout=None):
         """ plot a df as a histogram
             Args:
                 df (DataFrame): df with index as x axis
@@ -151,8 +160,7 @@ class Plotter(object):
             plot_dict['markers'] = markers
 
         if layout is not None:
-            for k, v in layout.items():
-                plot_dict[k] = v
+            plot_dict['layout'] = layout
 
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
@@ -160,7 +168,7 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def line(self, df, title, xlabel=None, ylabel=None, lines=None, layout=None):
+    def line(self, df, title=None, xlabel=None, ylabel=None, lines=None, layout=None):
         """ plot a df as a line plot 
             Args:
                 df (DataFrame): df with index as x axis
@@ -175,13 +183,16 @@ class Plotter(object):
         if lines is not None:
             plot_dict['lines'] = lines
 
+        if layout is not None:
+            plot_dict['layout'] = layout
+
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def multi(self, dfs, types, title, xlabel=None, ylabel=None, y2_axis=None, y2label=None, layout=None):
+    def multi(self, dfs, types, title=None, xlabel=None, ylabel=None, y2_axis=None, y2label=None, layout=None):
         """ plot multiple plot types on the same plot 
             Args:
                 dfs (list of DataFrames)
@@ -204,13 +215,16 @@ class Plotter(object):
             'staticPlot': False
         }
 
+        if layout is not None:
+            plot_dict['layout'] = layout
+
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel, y2label)
         if self.reporter:
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def ohlc(self, df, title, series_name = '', xlabel=None, ylabel=None, layout=None):
+    def ohlc(self, df, title=None, series_name = '', xlabel=None, ylabel=None, layout=None):
         """ timeseries OHLC
             Args:
                 df (DataFrame): df requires columns open, high, low, close
@@ -223,13 +237,16 @@ class Plotter(object):
             'name': series_name
         }
 
+        if layout is not None:
+            plot_dict['layout'] = layout
+
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def pie(self, df, title, hole=None, markers=None, margin=None, height=None, layout=None):
+    def pie(self, df, title=None, hole=None, markers=None, margin=None, layout=None):
         """ plot a df as a pie chart 
             Args:
                 df (DataFrame): df with index as label / category, first column as value
@@ -250,8 +267,9 @@ class Plotter(object):
         if markers is not None:
             plot_dict['markers'] = markers
 
-        if height is not None:
-            plot_dict['height'] = height
+
+        if layout is not None:
+            plot_dict['layout'] = layout
 
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title)        
@@ -260,7 +278,7 @@ class Plotter(object):
         return plot_dict
 
 
-    def scatter(self, df, title, xlabel=None, ylabel=None, markers=None, margin=None, hide_legend=False):
+    def scatter(self, df, title=None, xlabel=None, ylabel=None, markers=None, margin=None, hide_legend=False, layout=None):
         """ plot a df as a scatter plot 
             Args:
                 df (DataFrames): df with index as x axis
@@ -269,7 +287,7 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'scatter'}],
-            'staticPlot': False
+            #'staticPlot': False
         }
 
         if markers is not None:
@@ -281,13 +299,16 @@ class Plotter(object):
         if hide_legend:
             plot_dict['hide_legend'] = hide_legend
 
+        if layout is not None:
+            plot_dict['layout'] = layout
+
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def time(self, df, title, gap_time_format=None, xlabel=None, ylabel=None, lines=None):
+    def time(self, df, title=None, gap_time_format=None, xlabel=None, ylabel=None, lines=None, layout=None):
         """ plot a df as a timeseries 
             Args:
                 df (DataFrame): df with index as x axis
@@ -311,6 +332,9 @@ class Plotter(object):
 
         if lines is not None:
             plot_dict['lines'] = lines
+
+        if layout is not None:
+            plot_dict['layout'] = layout
 
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
