@@ -5,12 +5,15 @@ function generatePlot(id, plotSpec) {
 	var plotDiv = document.getElementById(id);
 	
 	// common to all plot types
-	if (!plotSpec.margin) {
+	/*if (plotSpec.layout == undefined) {
 		plotSpec.margin = {};
-	}
-	if (!plotSpec.margin.l) {
+
+	} else if (plotSpec.layout.margin == undefined) {
+		plotSpec.margin = {l: 50};
+		//plotSpec.margin.l = 50;
+	} else if (plotSpec.layout.margin.l == undefined) {
 		plotSpec.margin.l = 50;
-	}
+	}*/
 	
 	// generate the plot
 	if (plotSpec.type === 'heatMap') {
@@ -20,15 +23,11 @@ function generatePlot(id, plotSpec) {
 	}
 }
 
-//if (plotSpec.type === 'pie') {
-		//generatePieChart(plotDiv, plotSpec);
-	//} else
-
 
 function generateGenericPlot(plotDiv, plotSpec) {
 	
 	// default layout: copy any attributes from axis spec
-	var layout = { xaxis: {}, yaxis: {} /*, margin: { t: 0, r: 0 } */ };
+	let layout;
 	/*if (plotSpec.x) {
 		layout.xaxis = plotSpec.x;
 	}
@@ -53,24 +52,41 @@ function generateGenericPlot(plotDiv, plotSpec) {
 
 	if (plotSpec.layout) {
 		layout = plotSpec.layout;
+		// fill in required values if they're missing
+		if (!layout.xaxis) {
+			layout.xaxis = {};
+		}
+		if (!layout.yaxis) {
+			layout.yaxis = {};
+		}
+		if (!layout.margin) {
+			layout.margin = {};
+			layout.margin.l = 50;
+		} else if (!layout.margin.l) {
+			layout.margin.l = 50;
+		}
+	} else {
+		layout = {xaxis: {}, yaxis: {}, margin: {l: 50}};
+		//layout.margin = {};
+		//layout.margin.l = 50;
 	}
 
 	// create data object
-	var data = [];
+	let data = [];
 
 	//if !(dataSpec.type == 'pie' || dataSpec.type == 'ohlc')
 
 	for (var i = 0; i < plotSpec.data.length; i++) {
-		var dataSpec = plotSpec.data[i];
-		var columns = dataSpec.df;
+		let dataSpec = plotSpec.data[i];
+		let columns = dataSpec.df;
 		
 		// increment legend group (even if we're not going to use it)
 		g_autoLegendGroupId++;
 		
 		// loop over columns in data frame
 		for (var j = 1; j < columns.length; j++) {
-			var column = columns[j];
-			var dataItem = {
+			let column = columns[j];
+			let dataItem = {
 				x: columns[0].values,
 				y: columns[j].values,
 				name: column.name,
@@ -94,10 +110,53 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			if (plotSpec.opacities) {
 				dataItem.opacity = plotSpec.opacities[j-1];
 			}
-			
+
+			if (dataSpec.type === 'pie') {
+				// reset the data object and populate with labels and values
+				data = []
+				dataItem = {
+					labels: columns[0].values,
+					values: columns[1].values,
+					type: 'pie'
+				};
+				
+				if (dataSpec.hole) {
+					dataItem['hole'] = dataSpec.hole;
+				}
+
+				delete dataItem['x'];
+				delete dataItem['y'];
+				delete layout['xaxis'];
+				delete layout['yaxis'];
+
+				data.push(dataItem);
+				break;
+				//j = columns.length; // skip rest of columns for this data frame
+			} else if (dataSpec.type === 'ohlc') {
+				// reset the data object and populate the x axis with the timeseries index
+				data = []
+				dataItem = {
+					x: columns[0].values, // time
+				}
+
+				// data for OHLC: loop over the columns to set the elements: open, high, low, close
+				// TODO assert(plotSpec.data.length == 1)
+				// TODO assert(columns.length == 4)
+				//let dataSpec = plotSpec.data[0];
+				//let columns = dataSpec.df;
+				for (j = 1; j < columns.length; j++) {
+					dataItem[columns[j].name] = columns[j].values // dataItem[close] = df[close], etc
+				};
+				// use index (i.e. column[0] name if no spec name specified
+				dataItem.name = plotSpec.name || columns[0].name;
+				dataItem.type = 'ohlc';
+				data.push(dataItem);
+				break;
+			}
+
 			// if error bars, add them
 			if (dataSpec.errorBars) {
-				var errorInfo = {
+				let errorInfo = {
 					type: 'data',
 					array: columns[2].values,
 					visible: true
@@ -129,10 +188,10 @@ function generateGenericPlot(plotDiv, plotSpec) {
 					dataItem.legendgroup = 'lg' + g_autoLegendGroupId;
 				}
 				if (j == 2) {
-					var means = columns[1].values;
-					var devs = columns[2].values;
-					var upper = [];
-					var lower = [];
+					let means = columns[1].values;
+					let devs = columns[2].values;
+					let upper = [];
+					let lower = [];
 					for (var k = 0; k < dataItem.x.length; k++) {
 						upper.push(means[k] + devs[k]);
 						lower.push(means[k] - devs[k]);
@@ -144,7 +203,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 					dataItem.type = "scatter";
 
 					// make a copy for the lower bound
-					var newDataItem = {};
+					let newDataItem = {};
 					Object.keys(dataItem).forEach(function(key) {
 						 newDataItem[key] = dataItem[key];
 					}); 
@@ -171,14 +230,14 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			
 			// handle horizontal bar chart: swap x and y
 			if (dataItem.orientation === 'h') {
-				var x = dataItem.x;
+				let x = dataItem.x;
 				dataItem.x = dataItem.y;
 				dataItem.y = x;
 			}
 			
 			// handle histograms
 			if (dataSpec.type === 'histogram') {
-				var dataItem = JSON.parse(JSON.stringify(dataSpec)); // make copy; assumes just simple data
+				dataItem = JSON.parse(JSON.stringify(dataSpec)); // make copy; assumes just simple data
 				delete dataItem['df'];
 				dataItem.x = columns[j].values;
 				dataItem.name = dataSpec.name || columns[j].name; // use column name if no spec name specified
@@ -186,7 +245,6 @@ function generateGenericPlot(plotDiv, plotSpec) {
 					dataItem.marker = plotSpec.markers[j-1];
 				}
 			}
-
 
 			// handle 2d histograms
 			if (dataItem.type === 'histogram2d') {
@@ -216,67 +274,18 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			}
 			data.push(dataItem);
 		}
-
-		// handle OHLC
-		if (dataSpec.type === 'ohlc') {
-			// do nothing in this loop the data is set below
-		}
-	}
-
-	// data for OHLC: all 4 columns are elements in 1 data object (data above is n columns to n data objects)
-	if (dataSpec.type === 'ohlc') {
-		// reset the data object and populate the x axis with the timeseries index
-		var data = []
-		var dataItem = {
-			x: columns[0].values, // time
-		}
-
-		// data for OHLC: loop over the columns to set the elements: open, high, low, close
-		// TODO assert(plotSpec.data.length == 1)
-		// TODO assert(columns.length == 4)
-		var dataSpec = plotSpec.data[0];
-		var columns = dataSpec.df;
-		for (var j = 1; j < columns.length; j++) {
-			dataItem[columns[j].name] = columns[j].values // dataItem[close] = df[close], etc
-		};
-		// use index (i.e. column[0] name if no spec name specified
-		dataItem.name = plotSpec.name || columns[0].name;
-		dataItem.type = 'ohlc';
-		data.push(dataItem);
-	}
-
-	if (dataSpec.type === 'pie') {
-		// reset the data object and populate with labels and values
-		var data = []
-		var dataItem = {
-			labels: columns[0].values,
-			values: columns[1].values,
-			type: 'pie'
-		};
-
-		if (dataSpec.hole) {
-			dataItem['hole'] = dataSpec.hole;
-		}
-
-		delete dataItem['x'];
-		delete dataItem['y'];
-		
-		delete layout['xaxis'];
-		delete layout['yaxis'];
-
-		data.push(dataItem);
-	}
+	}	
 
 	// handle timestamps
 	if (plotSpec.typeX === 'timestamp') {
 		for (var i = 0; i < data.length; i++) {
-			var x = data[i].x;
-			var newX = [];
-			var len = x.length;
+			let x = data[i].x;
+			let newX = [];
+			let len = x.length;
 			for (var j = 0; j < len; j++) {
 				newX[j] = Date.parse(x[j]);
 			}
-			layout.xaxis.type = 'date'
+			layout.xaxis.type = 'date';
 			data[i].x = newX;
 		}
 	}
@@ -381,10 +390,8 @@ function generateHeatMap(plotDiv, plotSpec) {
 
 	// create layout object
 	var layout = { 
-		xaxis: { 
-		}, 
-		yaxis: { 
-		}
+		xaxis: {}, 
+		yaxis: {}
 	};
 	if (plotSpec.title) {
 		layout.title = plotSpec.title;
