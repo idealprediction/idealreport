@@ -67,8 +67,14 @@ function generateGenericPlot(plotDiv, plotSpec) {
 		}
 	} else {
 		layout = {xaxis: {}, yaxis: {}, margin: {l: 50}};
-		//layout.margin = {};
-		//layout.margin.l = 50;
+	}
+
+	// leaving title, xaxis and yaxis as params for reporter for basic charts
+	if (plotSpec.x) {
+		layout.xaxis.title = plotSpec.x.label;
+	}
+	if (plotSpec.y) {
+		layout.yaxis.title = plotSpec.y.label;
 	}
 
 	// create data object
@@ -332,7 +338,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 		if (axisSpec.hoverFormat !== undefined) { 
 			layoutAxis.hoverformat = axisSpec.hoverFormat;
 		}
-	}
+	}	
 	
 	// process axis attributes
 	// fix(clean): move up to top
@@ -361,7 +367,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 	}
 	
 	// create the plot
-	Plotly.newPlot(plotDiv, data, layout);//, {staticPlot: staticPlot});
+	Plotly.newPlot(plotDiv, data, layout, {displayModeBar: false}); //staticPlot: staticPlot, 
 }
 
 
