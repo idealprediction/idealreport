@@ -227,11 +227,24 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			// handle second y axis
 			if (dataSpec.y2) {
 				dataItem.yaxis = 'y2';
-				layout.yaxis2 = {
-					title: plotSpec.labelY2,
-					overlaying: 'y',
-					side: 'right'
-				};
+				if (layout.yaxis2) {
+					if (!layout.yaxis2.title) {
+						layout.yaxis2.title = plotSpec.labelY2;
+					}
+					if (!layout.yaxis2.overlaying) {
+						layout.yaxis2.overlaying = 'y';
+					}
+					if (!layout.yaxis2.side) {
+						layout.yaxis2.side = 'right';
+					}
+
+				} else {
+					layout.yaxis2 = {
+						title: plotSpec.labelY2,
+						overlaying: 'y',
+						side: 'right'
+					};
+				}
 			}
 			
 			// handle horizontal bar chart: swap x and y
