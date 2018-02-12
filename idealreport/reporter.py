@@ -1,6 +1,8 @@
 import htmltag
 from idealreport import create_html
 
+# default colors for graphs
+# https://github.com/plotly/plotly.js/blob/master/src/components/color/attributes.js
 
 class Plotter(object):
     """ Class to wrap report plotting """
