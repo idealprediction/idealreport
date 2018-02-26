@@ -23,7 +23,7 @@ class Plotter(object):
             plot_dict['y2'] = {'label': y2label}
         return plot_dict
 
-    def bar(self, df, title=None, xlabel=None, ylabel=None, stacked=False, horizontal=False, markers=None, layout=None):
+    def bar(self, df, title=None, xlabel=None, ylabel=None, stacked=False, horizontal=False, markers=None, widths=None, layout=None):
         """ plot a df as a bar chart
             Args:
                 df (DataFrame): df with index as x axis
