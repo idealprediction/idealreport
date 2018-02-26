@@ -67,7 +67,7 @@ class Plotter(object):
                 df (DataFrame): df with index as y axis
                 title, xlabel, ylabel (str): title is required and others are optional
         """
-        return self.bar(df=df, title=title, xlabel=xlabel, ylabel=ylabel, stacked=stacked, horizontal=True, markers=markers, widths=None, layout=layout)
+        return self.bar(df=df, title=title, xlabel=xlabel, ylabel=ylabel, stacked=stacked, horizontal=True, markers=markers, widths=widths, layout=layout)
 
     def baro(self, df, title=None, xlabel=None, ylabel=None, orientation='v', markers=None, widths=None, opacities=None, layout=None):
         """ plot a df as an overlay bar chart
