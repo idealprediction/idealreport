@@ -52,6 +52,9 @@ class Plotter(object):
         if layout is not None:
             plot_dict['layout'] = layout
 
+        if widths is not None:
+            plot_dict['widths'] = widths
+
         # plot labels + create HTML
         plot_dict = self._add_labels(plot_dict, title, xlabel, ylabel)
         if self.reporter:
@@ -64,7 +67,7 @@ class Plotter(object):
                 df (DataFrame): df with index as y axis
                 title, xlabel, ylabel (str): title is required and others are optional
         """
-        return self.bar(df=df, title=title, xlabel=xlabel, ylabel=ylabel, stacked=stacked, horizontal=True, markers=markers, widths=widths,layout=layout)
+        return self.bar(df=df, title=title, xlabel=xlabel, ylabel=ylabel, stacked=stacked, horizontal=True, markers=markers, widths=None, layout=layout)
 
     def baro(self, df, title=None, xlabel=None, ylabel=None, orientation='v', markers=None, widths=None, opacities=None, layout=None):
         """ plot a df as an overlay bar chart
