@@ -26,30 +26,9 @@ function generatePlot(id, plotSpec) {
 
 function generateGenericPlot(plotDiv, plotSpec) {
 	
-	// default layout: copy any attributes from axis spec
 	let layout;
-	/*if (plotSpec.x) {
-		layout.xaxis = plotSpec.x;
-	}
-	if (plotSpec.y) {
-		layout.yaxis = plotSpec.y;
-	}
-	if (plotSpec.y2) {
-		layout.y2axis = plotSpec.y2;
-	}
-	if (plotSpec.legend) {
-		layout.legend = plotSpec.legend;
-	}
-	if (plotSpec.height) {
-		layout.height = plotSpec.height;
-	}
-	if (plotSpec.width) {
-		layout.width = plotSpec.width;
-	}
-	if (plotSpec.hide_legend) {
-		layout.showlegend = false;
-	}*/
 
+	// default layout with xaxis and yaxis set to emtpy dicts and margin.l set to 50 if not specified in plotSpec.layout
 	if (plotSpec.layout) {
 		layout = plotSpec.layout;
 		// fill in required values if they're missing
@@ -80,15 +59,15 @@ function generateGenericPlot(plotDiv, plotSpec) {
 	// create data object
 	let data = [];
 
-	//if !(dataSpec.type == 'pie' || dataSpec.type == 'ohlc')
-
 	for (var i = 0; i < plotSpec.data.length; i++) {
 		let dataSpec = plotSpec.data[i];
 		let columns = dataSpec.df;
-		
+		let dataStatic = dataSpec.data_static;
+		let dataToIterate = dataSpec.data_to_iterate;
 		// increment legend group (even if we're not going to use it)
 		g_autoLegendGroupId++;
-		
+
+
 		// loop over columns in data frame
 		for (var j = 1; j < columns.length; j++) {
 			let column = columns[j];
@@ -99,6 +78,28 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			}; // fix(soon): initialize dataItem with copy of dataSpec so no need to copy individual attributes
 			if (dataSpec.name) { 
 				dataItem.name = dataSpec.name;
+			}
+
+			// dataStatic is a dictionary of values to set across the entire df, each trace will have the same static value
+			if (dataStatic) {
+				for (const [key, value] of Object.entries(dataStatic)) {
+					dataItem[key] = value;
+				}
+			}
+
+			// dataToIterate is a dictionary of values that differ by column for the df
+			if (dataToIterate) {
+				for (const [key, value] of Object.entries(dataToIterate)) {
+					if (Array.isArray(value)) {
+						if (value.length >= j) {
+							dataItem[key] = value[j-1];	
+						} else {
+							console.log(`ERROR; dataToIterate doesn't contain enough entries for ${key}`);	
+						}
+					} else {
+						console.log(`ERROR; dataToIterate didn't contain an array for ${key}`);
+					}
+				}
 			}
 
 			if (plotSpec.markers) {
@@ -118,13 +119,9 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			}
 
 			if (dataSpec.type === 'pie') {
-				// reset the data object and populate with labels and values
-				data = []
-				dataItem = {
-					labels: columns[0].values,
-					values: columns[1].values,
-					type: 'pie'
-				};
+				dataItem['labels'] = columns[0].values;
+				dataItem['values'] = columns[1].values;
+				dataItem['type'] = 'pie'
 				
 				if (dataSpec.hole) {
 					dataItem['hole'] = dataSpec.hole;
@@ -139,17 +136,10 @@ function generateGenericPlot(plotDiv, plotSpec) {
 				break;
 				//j = columns.length; // skip rest of columns for this data frame
 			} else if (dataSpec.type === 'ohlc') {
-				// reset the data object and populate the x axis with the timeseries index
-				data = []
-				dataItem = {
-					x: columns[0].values, // time
-				}
-
 				// data for OHLC: loop over the columns to set the elements: open, high, low, close
 				// TODO assert(plotSpec.data.length == 1)
 				// TODO assert(columns.length == 4)
-				//let dataSpec = plotSpec.data[0];
-				//let columns = dataSpec.df;
+				delete dataItem['y'];
 				for (j = 1; j < columns.length; j++) {
 					dataItem[columns[j].name] = columns[j].values // dataItem[close] = df[close], etc
 				};
@@ -308,62 +298,6 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			data[i].x = newX;
 		}
 	}
-	
-	/*
-	// old code for axis formatting
-	// fix(clean): remove this
-	if (plotSpec.labelX) {
-		layout.xaxis.title = plotSpec.labelX;
-	}
-	if (plotSpec.labelY) {
-		layout.yaxis.title = plotSpec.labelY;
-	}
-	if (plotSpec.rangeX !== undefined) {
-		layout.xaxis.range = plotSpec.rangeX;
-	}
-	if (plotSpec.rangeY !== undefined) {
-		layout.yaxis.range = plotSpec.rangeY;
-	}
-	if (plotSpec.rangeY2 !== undefined && layout.yaxis2) {
-		layout.yaxis2.range = plotSpec.rangeY2;
-	}
-	if (plotSpec.zeroLineX !== undefined) {
-		layout.xaxis.zeroline = plotSpec.zeroLineX;
-	}
-	if (plotSpec.zeroLineY !== undefined) {
-		layout.yaxis.zeroline = plotSpec.zeroLineY;
-	}
-	if (plotSpec.zeroLineY2 !== undefined && layout.yaxis2) {
-		layout.yaxis2.zeroline = plotSpec.zeroLineY2;
-	}
-	
-	// a helper function for access attributes
-	function processAxis(axisSpec, layoutAxis) {
-		if (axisSpec.label !== undefined) { 
-			layoutAxis.title = axisSpec.label;
-		}
-		if (axisSpec.range !== undefined) { // fix(clean): probably not needed now that we init with axis spec
-			layoutAxis.range = axisSpec.range; 
-		}
-		if (axisSpec.zeroLine !== undefined) { 
-			layoutAxis.zeroline = axisSpec.zeroLine;
-		}
-		if (axisSpec.hoverFormat !== undefined) { 
-			layoutAxis.hoverformat = axisSpec.hoverFormat;
-		}
-	}	
-	
-	// process axis attributes
-	// fix(clean): move up to top
-	if (plotSpec.x) {
-		processAxis(plotSpec.x, layout.xaxis);
-	}
-	if (plotSpec.y) {
-		processAxis(plotSpec.y, layout.yaxis);
-	}
-	if (plotSpec.y2) {
-		processAxis(plotSpec.y2, layout.yaxis2);
-	}*/
 	
 	// other layout
 	if (plotSpec.title) {
