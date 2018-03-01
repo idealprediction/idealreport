@@ -23,7 +23,7 @@ class Plotter(object):
             plot_dict['y2'] = {'label': y2label}
         return plot_dict
 
-    def bar(self, df, title=None, xlabel=None, ylabel=None, stacked=False, horizontal=False, markers=None, widths=None, layout=None):
+    def bar(self, df, title=None, xlabel=None, ylabel=None, stacked=False, horizontal=False, markers=None, widths=None, data_static=None, data_to_iterate=None, layout=None):
         """ plot a df as a bar chart
             Args:
                 df (DataFrame): df with index as x axis
@@ -43,8 +43,13 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': plot_type, 'orientation': orientation}],
-            'staticPlot': False
         }
+
+        if data_static is not None:
+            plot_dict['data'][0].update({'data_static':data_static})
+
+        if data_to_iterate is not None:
+            plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
         if markers is not None:
             plot_dict['markers'] = markers
@@ -80,7 +85,6 @@ class Plotter(object):
         
         plot_dict = {
             'data': [{'df': df, 'type': plot_type, 'orientation': orientation}],
-            'staticPlot': False
         }
 
         if markers is not None:
@@ -110,7 +114,6 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'scatter', 'errorBars': {'symmetric': symmetric,}}],
-            'staticPlot': False
         }
 
         if layout is not None:
@@ -133,7 +136,6 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'continuousErrorBars', 'fillcolor':fillcolor}],
-            'staticPlot': False
         }
 
         if layout is not None:
@@ -158,7 +160,6 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': plot_type}],
-            'staticPlot': False
         }
 
         if markers is not None:
@@ -182,7 +183,6 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'line'}],
-            'staticPlot': False
         }
 
         if lines is not None:
@@ -197,7 +197,7 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def multi(self, dfs, types, title=None, xlabel=None, ylabel=None, y2_axis=None, y2label=None, layout=None):
+    def multi(self, dfs, types, title=None, xlabel=None, ylabel=None, y2_axis=None, y2label=None, markers=None, widths=None, opacities=None, lines=None, data_static=None, data_to_iterate=None, layout=None):
         """ plot multiple plot types on the same plot 
             Args:
                 dfs (list of DataFrames)
@@ -213,12 +213,32 @@ class Plotter(object):
             else:
                 data.append({'df':dfs[i], 'type':types[i], 'y2':y2_axis[i]})
 
+            # data_static and data_to_iterate need to be appending df by df to the data dict
+            if data_static is not None:
+                if len(data_static) > i:
+                    if data_static[i] is not None:
+                        data[i].update({'data_static':data_static[i]})
+            if data_to_iterate is not None:
+                if len(data_to_iterate) > i:
+                    if data_to_iterate[i] is not None:
+                        data[i].update({'data_to_iterate':data_to_iterate[i]})
 
         # dict() to store info for plotting
         plot_dict = {
             'data': data,
-            'staticPlot': False
         }
+
+        if markers is not None:
+            plot_dict['markers'] = markers
+
+        if widths is not None:
+            plot_dict['widths'] = widths
+
+        if opacities is not None:
+            plot_dict['opacities'] = opacities
+
+        if lines is not None:
+            plot_dict['lines'] = lines
 
         if layout is not None:
             plot_dict['layout'] = layout
@@ -238,7 +258,6 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'ohlc'}],
-            'staticPlot': False,
             'name': series_name
         }
 
@@ -261,12 +280,10 @@ class Plotter(object):
         if hole is not None:
             plot_dict = {
                 'data': [{'df': df, 'type': 'pie', 'hole': hole}], 
-                'staticPlot': False,
             }
         else:
             plot_dict = {
                 'data': [{'df': df, 'type': 'pie'}],
-                'staticPlot': False,
             }
 
         if markers is not None:
@@ -283,7 +300,7 @@ class Plotter(object):
         return plot_dict
 
 
-    def scatter(self, df, title=None, xlabel=None, ylabel=None, markers=None, margin=None, hide_legend=False, layout=None):
+    def scatter(self, df, title=None, xlabel=None, ylabel=None, markers=None, margin=None, hide_legend=False, data_static=None, data_to_iterate=None, layout=None):
         """ plot a df as a scatter plot 
             Args:
                 df (DataFrames): df with index as x axis
@@ -292,8 +309,13 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'scatter'}],
-            #'staticPlot': False
         }
+
+        if data_static is not None:
+            plot_dict['data'][0].update({'data_static':data_static})
+
+        if data_to_iterate is not None:
+            plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
         if markers is not None:
             plot_dict['markers'] = markers
@@ -332,7 +354,6 @@ class Plotter(object):
         # dict() to store info for plotting
         plot_dict = {
             'data': [{'df': df, 'type': 'line'}],
-            'staticPlot': False
         }
 
         if lines is not None:

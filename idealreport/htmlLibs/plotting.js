@@ -84,8 +84,11 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			if (dataStatic) {
 				for (const [key, value] of Object.entries(dataStatic)) {
 					dataItem[key] = value;
+					//console.log(`set ${key} to ${value}`);
 				}
 			}
+
+			//console.log(dataItem);
 
 			// dataToIterate is a dictionary of values that differ by column for the df
 			if (dataToIterate) {
@@ -171,9 +174,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			
 			// get formatting from data spec
 			dataItem.orientation = dataSpec.orientation;
-			dataItem.mode = dataSpec.mode;
 			dataItem.fillcolor = dataSpec.fillcolor;
-			dataItem.legendgroup = dataSpec.legendgroup;
 			if (dataSpec.type !== 'line') {
 				dataItem.type = dataSpec.type;
 			}
@@ -281,6 +282,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			if (dataItem.type === 'scatter' && !dataItem.mode && dataSpec.type !== 'continuousErrorBars') {
 				dataItem.mode = 'markers';
 			}
+			//console.log(dataItem);
 			data.push(dataItem);
 		}
 	}	
