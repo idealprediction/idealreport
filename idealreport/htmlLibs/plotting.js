@@ -58,6 +58,8 @@ function generateGenericPlot(plotDiv, plotSpec) {
 
 	// create data object
 	let data = [];
+	// index for use on properties which can span multiple
+	//let k = 0;
 
 	for (var i = 0; i < plotSpec.data.length; i++) {
 		let dataSpec = plotSpec.data[i];
@@ -84,11 +86,8 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			if (dataStatic) {
 				for (const [key, value] of Object.entries(dataStatic)) {
 					dataItem[key] = value;
-					//console.log(`set ${key} to ${value}`);
 				}
 			}
-
-			//console.log(dataItem);
 
 			// dataToIterate is a dictionary of values that differ by column for the df
 			if (dataToIterate) {
@@ -106,19 +105,55 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			}
 
 			if (plotSpec.markers) {
-				dataItem.marker = plotSpec.markers[j-1];
+				// for charts where multiple dfs are passed through, check to see if the attribute exists for the current df
+				if (plotSpec.data.length > 1) {
+					if (plotSpec.markers.length > i) {
+						if (plotSpec.markers[i] && plotSpec.markers[i].length >= j) {
+							dataItem.marker = plotSpec.markers[i][j-1];
+						}
+					}
+				} else {
+					dataItem.marker = plotSpec.markers[j-1];
+				}
 			}
 
 			if (plotSpec.lines) {
-				dataItem.line = plotSpec.lines[j-1];
+				// for charts where multiple dfs are passed through, check to see if the attribute exists for the current df
+				if (plotSpec.data.length > 1) {
+					if (plotSpec.lines.length > i) {
+						if (plotSpec.lines[i] && plotSpec.lines[i].length >= j) {
+							dataItem.line = plotSpec.lines[i][j-1];
+						}
+					}
+				} else {
+					dataItem.line = plotSpec.lines[j-1];
+				}
 			}
 
 			if (plotSpec.widths) {
-				dataItem.width = plotSpec.widths[j-1];
+				// for charts where multiple dfs are passed through, check to see if the attribute exists for the current df
+				if (plotSpec.data.length > 1) {
+					if (plotSpec.widths.length > i) {
+						if (plotSpec.widths[i] && plotSpec.widths[i].length >= j) {
+							dataItem.width = plotSpec.widths[i][j-1];
+						}
+					}
+				} else {
+					dataItem.width = plotSpec.widths[j-1];
+				}
 			}
 
 			if (plotSpec.opacities) {
-				dataItem.opacity = plotSpec.opacities[j-1];
+				// for charts where multiple dfs are passed through, check to see if the attribute exists for the current df
+				if (plotSpec.data.length > 1) {
+					if (plotSpec.opacities.length > i) {
+						if (plotSpec.opacities[i] && plotSpec.opacities[i].length >= j) {
+							dataItem.opacity = plotSpec.opacities[i][j-1];
+						}
+					}
+				} else {
+					dataItem.opacity = plotSpec.opacities[j-1];
+				}
 			}
 
 			if (dataSpec.type === 'pie') {
@@ -172,10 +207,14 @@ function generateGenericPlot(plotDiv, plotSpec) {
 				}
 			}
 			
-			// get formatting from data spec
-			dataItem.orientation = dataSpec.orientation;
-			dataItem.fillcolor = dataSpec.fillcolor;
-			if (dataSpec.type !== 'line') {
+			// get formatting from dataSpec if not already provided by dataStatic or dataToIterate
+			if (!dataItem.orientation && dataSpec.orientation) {
+				dataItem.orientation = dataSpec.orientation;
+			}
+			if (!dataItem.fillcolor && dataSpec.fillcolor) {
+				dataItem.fillcolor = dataSpec.fillcolor;
+			}
+			if (!dataItem.type && dataSpec.type !== 'line') {
 				dataItem.type = dataSpec.type;
 			}
 			
@@ -219,8 +258,10 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			if (dataSpec.y2) {
 				dataItem.yaxis = 'y2';
 				if (layout.yaxis2) {
-					if (!layout.yaxis2.title) {
-						layout.yaxis2.title = plotSpec.labelY2;
+					// if someone uses the y2label attribute, it should take precednece over the layout.yaxais2 title
+					// if (!layout.yaxis2.title && plotSpec.y2 && plotSpec.y2.label) {
+					if (plotSpec.y2 && plotSpec.y2.label) {
+						layout.yaxis2.title = plotSpec.y2.label;
 					}
 					if (!layout.yaxis2.overlaying) {
 						layout.yaxis2.overlaying = 'y';
@@ -228,13 +269,15 @@ function generateGenericPlot(plotDiv, plotSpec) {
 					if (!layout.yaxis2.side) {
 						layout.yaxis2.side = 'right';
 					}
-
 				} else {
 					layout.yaxis2 = {
-						title: plotSpec.labelY2,
 						overlaying: 'y',
 						side: 'right'
 					};
+
+					if (plotSpec.y2 && plotSpec.y2.label) {
+						layout.yaxis2.title = plotSpec.y2.label;
+					}
 				}
 			}
 			
