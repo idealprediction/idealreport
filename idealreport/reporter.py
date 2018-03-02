@@ -11,7 +11,7 @@ class Plotter(object):
         """ store the Reporter instance to allow adding HTML to the report stored internally in Reporter"""
         self.reporter = reporter
 
-    def _add_labels(self, plot_dict, title, xlabel=None, ylabel=None, y2label=None):
+    def _add_labels(self, plot_dict, title=None, xlabel=None, ylabel=None, y2label=None):
         """ add standard labels to a plot dictionary - title is required """
         if title is not None:
             plot_dict['title'] = title
