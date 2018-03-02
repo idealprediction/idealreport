@@ -233,10 +233,10 @@ function generateGenericPlot(plotDiv, plotSpec) {
 						lower.push(means[k] - devs[k]);
 					}
 					dataItem.y = upper;
-					dataItem.fill = "tonexty";
-					dataItem.line = {color: "transparent"};
+					dataItem.fill = 'tonexty';
+					dataItem.line = {color: 'transparent'};
 					dataItem.showlegend = false;
-					dataItem.type = "scatter";
+					dataItem.type = 'scatter';
 
 					// make a copy for the lower bound
 					let newDataItem = {};
@@ -249,8 +249,8 @@ function generateGenericPlot(plotDiv, plotSpec) {
 					
 				// handle mean line of continuous error bars
 				} else {
-					dataItem.type = "scatter";
-					dataItem.mode = "lines";
+					dataItem.type = 'scatter';
+					dataItem.mode = 'lines';
 				}
 			}
 			
@@ -324,6 +324,11 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			// provide a default mode for scatter plots
 			if (dataItem.type === 'scatter' && !dataItem.mode && dataSpec.type !== 'continuousErrorBars') {
 				dataItem.mode = 'markers';
+			}
+
+			// provide a default mode for line plots
+			if (dataSpec.type === 'line' && !dataItem.mode) {
+				dataItem.mode = 'lines';
 			}
 			//console.log(dataItem);
 			data.push(dataItem);
