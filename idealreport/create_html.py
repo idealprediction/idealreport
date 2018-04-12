@@ -110,6 +110,7 @@ def table(df, sortable=False, last_row_is_footer=False, format=None):
     
     # create header
     items = []
+    # if there's a hierarchical index for the columns, span the top level; only suppots 2 levels
     if isinstance(df.columns[0], tuple):
         headers = []
         prev_header = df.columns[0][0]
@@ -170,6 +171,7 @@ def table(df, sortable=False, last_row_is_footer=False, format=None):
                 v = pattern.format(v)
             if get_format(col_name, 'align') == 'right':
                 items.append(htmltag.td(v, _class='alignRight'))
+            # TODO - need to implement width control
             #width = get_format(col_name, 'width')
             #if is_numeric(width):
             #    style='width:' + str(width) + 'px'
@@ -181,6 +183,7 @@ def table(df, sortable=False, last_row_is_footer=False, format=None):
         else:
             rows.append(htmltag.tr(*items))
     tbody = htmltag.tbody(*rows)
+    # if sortable, apply the bootstrap-table tab, bs-table
     if sortable:
         if rowCount > 15:
             return htmltag.table(thead, tbody, tfoot, **{'class':'bs-table', 'data-striped':'true', 'data-height':'600'})

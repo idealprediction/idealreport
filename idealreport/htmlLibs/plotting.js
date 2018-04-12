@@ -28,7 +28,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 	
 	let layout;
 
-	// default layout with xaxis and yaxis set to emtpy dicts and margin.l set to 50 if not specified in plotSpec.layout
+	// default layout with xaxis and yaxis set to empty dicts and margin.l set to 50 if not specified in plotSpec.layout
 	if (plotSpec.layout) {
 		layout = plotSpec.layout;
 		// fill in required values if they're missing
@@ -58,8 +58,6 @@ function generateGenericPlot(plotDiv, plotSpec) {
 
 	// create data object
 	let data = [];
-	// index for use on properties which can span multiple
-	//let k = 0;
 
 	for (var i = 0; i < plotSpec.data.length; i++) {
 		let dataSpec = plotSpec.data[i];
@@ -68,7 +66,6 @@ function generateGenericPlot(plotDiv, plotSpec) {
 		let dataToIterate = dataSpec.data_to_iterate;
 		// increment legend group (even if we're not going to use it)
 		g_autoLegendGroupId++;
-
 
 		// loop over columns in data frame
 		for (var j = 1; j < columns.length; j++) {
@@ -104,6 +101,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 				}
 			}
 
+			// TODO - it's probably worth cleaning up the 4 identical checks for markers, lines, widths, and opacities
 			if (plotSpec.markers) {
 				// for charts where multiple dfs are passed through, check to see if the attribute exists for the current df
 				if (plotSpec.data.length > 1) {
@@ -172,7 +170,6 @@ function generateGenericPlot(plotDiv, plotSpec) {
 
 				data.push(dataItem);
 				break;
-				//j = columns.length; // skip rest of columns for this data frame
 			} else if (dataSpec.type === 'ohlc') {
 				// data for OHLC: loop over the columns to set the elements: open, high, low, close
 				// TODO assert(plotSpec.data.length == 1)
