@@ -66,15 +66,15 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def barh(self, df, title=None, xlabel=None, ylabel=None, stacked=False, markers=None, widths=None, layout=None):
+    def barh(self, df, title=None, xlabel=None, ylabel=None, stacked=False, markers=None, widths=None, data_static=None, data_to_iterate=None, layout=None):
         """ plot a df as a horizontal bar chart
             Args:
                 df (DataFrame): df with index as y axis
                 title, xlabel, ylabel (str): title is required and others are optional
         """
-        return self.bar(df=df, title=title, xlabel=xlabel, ylabel=ylabel, stacked=stacked, horizontal=True, markers=markers, widths=widths, layout=layout)
+        return self.bar(df=df, title=title, xlabel=xlabel, ylabel=ylabel, stacked=stacked, horizontal=True, markers=markers, widths=widths, data_static=data_static, data_to_iterate=data_to_iterate, layout=layout)
 
-    def baro(self, df, title=None, xlabel=None, ylabel=None, orientation='v', markers=None, widths=None, opacities=None, layout=None):
+    def baro(self, df, title=None, xlabel=None, ylabel=None, orientation='v', markers=None, widths=None, opacities=None, data_static=None, data_to_iterate=None, layout=None):
         """ plot a df as an overlay bar chart
             Args:
                 df (DataFrame): df with index as x axis for vertical, y axis for horizontal
@@ -86,6 +86,12 @@ class Plotter(object):
         plot_dict = {
             'data': [{'df': df, 'type': plot_type, 'orientation': orientation}],
         }
+
+        if data_static is not None:
+            plot_dict['data'][0].update({'data_static':data_static})
+
+        if data_to_iterate is not None:
+            plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
         if markers is not None:
             plot_dict['markers'] = markers
@@ -174,7 +180,7 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def line(self, df, title=None, xlabel=None, ylabel=None, lines=None, layout=None):
+    def line(self, df, title=None, xlabel=None, ylabel=None, lines=None, data_static=None, data_to_iterate=None, layout=None):
         """ plot a df as a line plot 
             Args:
                 df (DataFrame): df with index as x axis
@@ -184,6 +190,12 @@ class Plotter(object):
         plot_dict = {
             'data': [{'df': df, 'type': 'line'}],
         }
+
+        if data_static is not None:
+            plot_dict['data'][0].update({'data_static':data_static})
+
+        if data_to_iterate is not None:
+            plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
         if lines is not None:
             plot_dict['lines'] = lines
@@ -270,7 +282,7 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def pie(self, df, title=None, hole=None, markers=None, margin=None, layout=None):
+    def pie(self, df, title=None, hole=None, markers=None, margin=None, data_static=None, data_to_iterate=None, layout=None):
         """ plot a df as a pie chart 
             Args:
                 df (DataFrame): df with index as label / category, first column as value
@@ -286,9 +298,14 @@ class Plotter(object):
                 'data': [{'df': df, 'type': 'pie'}],
             }
 
+        if data_static is not None:
+            plot_dict['data'][0].update({'data_static':data_static})
+
+        if data_to_iterate is not None:
+            plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
+
         if markers is not None:
             plot_dict['markers'] = markers
-
 
         if layout is not None:
             plot_dict['layout'] = layout
@@ -335,7 +352,7 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
-    def time(self, df, title=None, gap_time_format=None, xlabel=None, ylabel=None, lines=None, layout=None):
+    def time(self, df, title=None, gap_time_format=None, xlabel=None, ylabel=None, lines=None, data_static=None, data_to_iterate=None, layout=None):
         """ plot a df as a timeseries 
             Args:
                 df (DataFrame): df with index as x axis
@@ -355,6 +372,12 @@ class Plotter(object):
         plot_dict = {
             'data': [{'df': df, 'type': 'line'}],
         }
+
+        if data_static is not None:
+            plot_dict['data'][0].update({'data_static':data_static})
+
+        if data_to_iterate is not None:
+            plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
         if lines is not None:
             plot_dict['lines'] = lines
