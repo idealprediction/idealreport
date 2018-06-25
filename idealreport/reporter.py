@@ -391,6 +391,29 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
+    def box(self, df, title=None, groups = None, horizontal=False, markers=None, layout=None):
+
+         # vertical vs horizontal box
+        orientation = 'v'
+        if horizontal:
+            orientation = 'h'
+
+        # dict() to store info for plotting
+        plot_dict = {
+            'data': [{'df': df, 'type': 'box', 'orientation': orientation, 'groups': groups}],
+        }
+
+        if markers is not None:
+            plot_dict['markers'] = markers
+        if layout is not None:
+            plot_dict['layout'] = layout
+
+        # # plot labels + create HTML
+        # plot_dict = self._add_labels(plot_dict)
+        plot_dict = self._add_labels(plot_dict, title)
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
 
 class Reporter(object):
     """ class to wrap the report class and add helper f()s - perhaps push functionality to the report class? """
