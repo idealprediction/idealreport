@@ -64,6 +64,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 		let columns = dataSpec.df;
 		let dataStatic = dataSpec.data_static;
 		let dataToIterate = dataSpec.data_to_iterate;
+
 		// increment legend group (even if we're not going to use it)
 		g_autoLegendGroupId++;
 
@@ -157,7 +158,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 			if (dataSpec.type === 'pie') {
 				dataItem['labels'] = columns[0].values;
 				dataItem['values'] = columns[1].values;
-				dataItem['type'] = 'pie'
+				dataItem['type'] = 'pie';
 				
 				if (dataSpec.hole) {
 					dataItem['hole'] = dataSpec.hole;
@@ -183,7 +184,19 @@ function generateGenericPlot(plotDiv, plotSpec) {
 				dataItem.type = 'ohlc';
 				data.push(dataItem);
 				break;
-			}
+			} else if (dataSpec.type === 'box') {
+
+				dataItem['type'] = 'box';
+				if (dataItem.orientation === 'h') {
+					dataItem.x = columns[1].values;
+					dataItem.y = dataSpec.groups;
+				} else {
+					dataItem.y = columns[1].values;
+					dataItem.x = dataSpec.groups;
+				}
+
+				dataItem.name = dataSpec.name || columns[j].name;
+	            }
 
 			// if error bars, add them
 			if (dataSpec.errorBars) {
