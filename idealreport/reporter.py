@@ -415,6 +415,26 @@ class Plotter(object):
             self.reporter.h += create_html.plot(plot_dict)
         return plot_dict
 
+    def sankey(self, df, title=None, node=None, link_labels=[], vertical=False, layout=None):
+
+        # vertical vs horizontal box
+        orientation = 'h'
+        if vertical:
+            orientation = 'v'
+
+        # dict() to store info for plotting
+        plot_dict = {
+            'data': [{'df': df, 'type': 'sankey', 'orientation': orientation, 'linkLabels': link_labels}],
+            'type': 'sankey',
+            'title': title,
+            'layout': layout,
+            'node': node
+        }
+
+        if self.reporter:
+            self.reporter.h += create_html.plot(plot_dict)
+        return plot_dict
+
 class Reporter(object):
     """ class to wrap the report class and add helper f()s - perhaps push functionality to the report class? """
     def __init__(self, title, output_file):
