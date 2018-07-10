@@ -1,84 +1,101 @@
-import time
-import random
-import datetime
+# This example script shows how to utilize idealreport to create various interactive HTML plots.
+# The framework generates a "report" that is an HTML file with supporting js files.
+#
+# These are the steps to generate the example report:
+# 1. Use python 2.7 and install the requirements using "pip install htmltag pandas"
+# 2. Run this script "python sample_plots.py" 
+# 3. Open the resulting HTML file in a browswer "reports/sample_plots.html"
+# 
+# This sample shows how to utilize the framework via:
+# (1) create_html.py functions in create_html.py 
+# (2) report.py Reporter class in report.py which wraps functions in (1)
+# The create_html functions are more general, but often require more verbose code.
+# 
+# abbreviations in the comments:
+# - df = a pandas DataFrame
+# - ps = plot specification (python dictionary) used by create_html
+
 import os
-from pandas import DataFrame, to_datetime, DatetimeIndex
-import numpy as np
-import idealreport.create_html as ch
-from idealreport.reporter import Reporter
 import htmltag
+import idealreport as ir
+import numpy as np
+import pandas as pd
 
-# simple vertical bar chart, notice additional entry in the data field for orientation
+# data stored in pandas DataFrames (df)
+# df: bar charts
+df_bar = pd.DataFrame({'Stat 1': [2.0, 1.6, 0.9, 0.2, -1.3],
+    'Stat 2': [1.1, 0.7, -0.8, -1.4, 0.4],
+    'Value 1': [8, 10, 50, 85, 42],
+    'Value 2': [100, 50, 10, 100, 25]
+    }, index=['Entity 1', 'Entity 2', 'Entity 3', 'Entity 4', 'Entity 5'])
 
-dfhb = DataFrame({'Entity': ['Entity 1', 'Entity 2', 'Entity 3', 'Entity 4', 'Entity 5'],
-                  'Stat 1': np.random.randn(5).tolist(),
-                  'Stat 2': np.random.randn(5).tolist(),
-                 })
-dfhb = dfhb.set_index('Entity')
-dfhb = dfhb.sort_values(by='Stat 1', ascending=False)
+# df: line, scatter, mixed (e.g. line and bar), secondary Y-axis, box
+df_line = pd.DataFrame({'a': np.arange(0, 20) - 8, 'b': -2 * np.arange(0, 20) + 5})
+df_line['b'] = df_line['b'] + np.random.randn(20)
 
+# df: line with error
+df_error = df_line.copy()
+df_error['error 1'] = df_error['a'].abs() * 0.2
+df_error['error 2'] = df_error['b'].abs() * 0.4
+df_error.set_index('a', inplace=True)
+
+# df: open high low close (OHLC)
+df_ohlc = pd.DataFrame(np.random.randn(20, 4), columns=['open', 'high', 'low', 'close'])
+df_ohlc['high'] = df_ohlc['high'] + 3
+df_ohlc['low'] = df_ohlc['low'] - 3
+
+# df: Sankey
+df_sankey = pd.DataFrame(np.array([[0,2,8], [1,3,4], [0,3,2], [2,3,8], [3,4,4], [3,5,2]]))
+df_sankey.columns = ['source', 'target', 'value']
+
+# plot specifications (ps) used by create_html
+# ps: vertical bar chart (additional data field required: orientation)
 bar_plot = {
-    'title': 'Vertical Bar Chart by Create HTML',
+    'title': 'Vertical Bar Chart (Create HTML)',
     'data': [
         {
-            'df': dfhb,
+            'df': df_bar[['Stat 1', 'Stat 2']],
             'type': 'bar',
             'orientation': 'v',
         },
     ],
     'labelX': 'Entity',
-    'labelY': '%',
+    'labelY': 'Stat',
     'staticPlot': False
 }
 
-# stacked horizontal bar chart, notice additional entry in the data field for orientation
-
-dfsb = DataFrame({'Entity': ['Entity 1', 'Entity 2', 'Entity 3', 'Entity 4', 'Entity 5'],
-                'Foo': [8, 10, 50, 85, 42],
-                'Bar': [100, 50, 10, 100, 25]})
-dfsb = dfsb.set_index('Entity')
-dfsb = dfsb[['Foo', 'Bar']] # make sure columns have desired order
-
+# ps: stacked horizontal bar chart (additional data field required: orientation)
 stacked_bar_plot = {
-    'title': 'Horizontal Stacked Bar Chart by Create HTML',
+    'title': 'Horizontal Stacked Bar Chart (Create HTML)',
     'data': [
         {
-            'df': dfsb,
+            'df': df_bar[['Value 1', 'Value 2']],
             'type': 'stackedBar',
             'orientation': 'h',
         },
     ],
-    'labelX': '$',
+    'labelX': 'Value',
     'staticPlot': False
 }
 
-# simple line chart
-
-dfl = DataFrame(np.random.randn(200, 3))
-dfl.columns = ['a', 'b', 'c']
-dfl.a = range(200)
-dfl = dfl.set_index('a')
+# ps: line chart
 line_plot = {
-    'title': 'Line Plot by Create HTML',
+    'title': 'Line Plot (Create HTML)',
     'data': [
         {
-            'df': dfl,
+            'df': df_line,
             'type': 'line',
         },
     ],
     'staticPlot': False
 }
 
-# scatter plot
-
-dfsp = DataFrame(np.random.randn(20, 3))
-dfsp.columns = ['a', 'b', 'c']
-dfsp = dfsp.set_index('a')
+# ps: scatter plot
 scatter_plot = {
-    'title': 'Scatter Plot by Create HTML',
+    'title': 'Scatter Plot (Create HTML)',
     'data': [
         {
-            'df': dfsp,
+            'df': df_line.set_index('a'),
             'type': 'scatter',
         },
     ],
@@ -87,28 +104,16 @@ scatter_plot = {
     'staticPlot': False
 }
 
-# mixed plot types on one graph
-
-df1 = DataFrame(np.random.randn(200, 2))
-df1.columns = ['a', 'b1']
-df1.sort_values(by='a', ascending=True, inplace=True)
-df1 = df1.set_index('a')
-
-df2 = DataFrame(np.random.randn(200, 2))
-df2.columns = ['a', 'b2']
-df2.sort_values(by='a', ascending=True, inplace=True)
-df2 = df2.set_index('a')
-
-
+# ps: mixed plot types on one graph
 multi_scatter_plot = {
-    'title': 'Mixed Line and Bar Plot by Create HTML',
+    'title': 'Mixed Line and Bar Plot (Create HTML)',
     'data': [
         {
-            'df': df1,
+            'df': df_line['a'],
             'type': 'line',
         },
         {
-            'df': df2,
+            'df': df_line['b'],
             'type': 'bar',
             'orientation': 'v',
         },
@@ -118,98 +123,44 @@ multi_scatter_plot = {
     'staticPlot': False
 }
 
-#different axes
-
-dfa = DataFrame(np.random.randn(20, 2))
-dfa.columns = ['x', 'a']
-dfa.x = range(20)
-dfa = dfa.set_index('x')
-dfb = DataFrame(np.random.randn(20, 2))
-dfb.columns = ['x', 'b']
-dfb.x = range(20)
-dfb = dfb.set_index('x')
-dfb.b *= 100
+# ps: secondary Y-axis
 multi_axis_plot = {
     'type': 'line',
-    'title': 'Multi-Axis Plot by Create HTML',
+    'title': 'Secondary Y-Axis Plot (Create HTML)',
     'data': [
         {
-            'df': dfa,
+            'df': df_line['a'],
             'type': 'line',
         },
         {
-            'df': dfb,
+            'df': df_line['b'],
             'type': 'line',
             'y2': True,
         },
     ],
     'labelX': 'x',
-    'labelY': 'ya',
-    'labelY2': 'yb',
+    'labelY': 'y from a',
+    'labelY2': 'y from b',
 }
-# scatter plot
 
-dfsk = DataFrame(np.random.randn(20, 2))
-dfsk.columns = ['Trace 1', 'Trace 2']
+# ps: box plot
 box_plot = {
-    'title': 'Box Plot Generated by HTML',
+    'title': 'Box Plot (Create HTML)',
     'data': [
         {
-            'df': dfsk,
+            'df': df_line,
             'type': 'box',
         },
     ],
     'staticPlot': False
 }
 
-output_path = 'reports/'
-output_file = os.path.join(output_path, 'sample_plots.html')
-r = Reporter(title='Sample Plots', output_file=output_file)
-
-# report start
-r.h += htmltag.h3('This report provides an overivew of the different plot types.')
-
-# bar charts
-r.h += htmltag.h4('Bar Charts')
-r.plot.bar(df=dfhb, title='Vertical Bar Chart by Reporter', xlabel='Entity', ylabel='%')
-r.h += ch.plot(bar_plot)
-r.plot.barh(df=dfsb, title='Horizontal Stacked Bar Chart by Reporter', stacked=True, xlabel='$')
-r.h += ch.plot(stacked_bar_plot)
-
-# line charts
-r.h += htmltag.h4('Line Charts')
-r.plot.line(df=dfl, title='Line Chart by Reporter', xlabel='Entity', ylabel='%')
-r.h += ch.plot(line_plot)
-
-# scatter plots
-r.h += htmltag.h4('Scatter Plots')
-r.plot.scatter(df=dfsp, title='Scatter Plot by Reporter', xlabel='alpha', ylabel='beta')
-r.h += ch.plot(scatter_plot)
-
-# mixed plot types
-r.h += htmltag.h4('Multi Series, Mixed Type Plots')
-r.plot.multi(dfs=[df1, df2], types=['line', 'bar'], title='Mixed Line and Bar Plot by Reporter', xlabel='x label', ylabel='y label')
-r.h += ch.plot(multi_scatter_plot)
-r.plot.multi(dfs=[dfa, dfb], types=['line', 'line'], title='Multi-Axis Plot by Reporter', xlabel='x', ylabel='ya', y2_axis=[False,True], y2label='yb')
-r.h += ch.plot(multi_axis_plot)
-
-# box plot
-r.h += htmltag.h4('Box Plots')
-r.plot.box(df=dfsk, title='Box Plot by Reporter')
-r.h += ch.plot(box_plot)
-
-# # sankey plot
-# source:     [0,1,0,2,3,3],
-#     target: [2,3,3,4,4,5],
-#     value:  [8,4,2,8,4,2]
-
-dfsl = DataFrame(np.array([[0,2,8], [1,3,4], [0,3,2], [2,3,8], [3,4,4], [3,5,2]]))
-dfsl.columns = ['source', 'target', 'value']
+# ps: sankey plot
 sankey_plot = {
-    'title': 'Sankey Plot Generated by HTML',
+    'title': 'Sankey Plot (Create HTML)',
     'data': [
         {
-            'df': dfsl,
+            'df': df_sankey,
             'type': 'sankey',
         },
     ],
@@ -217,9 +168,116 @@ sankey_plot = {
     'staticPlot': False
 }
 
-r.h += htmltag.h4('Sankey Plots')
-r.plot.sankey(df=dfsl, title='Sankey Plot by Reporter')
-r.h += ch.plot(sankey_plot)
+# report: instantiate the Reporter class, specifying the output path and file name
+output_path = 'reports/'
+output_file = os.path.join(output_path, 'sample_plots.html')
+r = ir.Reporter(title='Sample Plots', output_file=output_file)
 
-# generate and save the report HTML
+# report: title and introduction
+# note: html tag generates HTML which we can append to the report "h" attribute
+r.h += htmltag.h3('Sample Ideal Report')
+r.h += htmltag.text('This report illustrates how to generate an HTML report with various plot types.\n')
+r.h += htmltag.text('Many plots are generated by create_html functions with a plot specification (Create HTML) ')
+r.h += htmltag.text('as well as the Reporter class (Reporter).')
+
+# report: bar charts
+r.h += htmltag.h4('Bar Charts')
+r.plot.bar(df=df_bar[['Stat 1', 'Stat 2']], title='Vertical Bar Chart (Reporter)', xlabel='Entity', ylabel='Stats')
+r.h += ir.create_html.plot(bar_plot)
+r.plot.barh(df=df_bar[['Value 1', 'Value 2']], title='Horizontal Stacked Bar Chart (Reporter)', stacked=True, xlabel='Values')
+r.h += ir.create_html.plot(stacked_bar_plot)
+
+# report: bar chart, specifying colors for the bars
+markers = [{'color': 'rgb(59, 115, 186)'}, {'color': 'rgb(185, 187, 211)'}]
+r.plot.bar(df=df_bar[['Stat 1', 'Stat 2']], title='Vertical Bar Chart with Colors (Reporter)', xlabel='Entity', ylabel='Stats', markers=markers)
+
+# report: overlay bar chart, specifying width and opacity of the bars
+widths = [.4, .2]
+opacities = [.6, 1]
+r.plot.baro(df=df_bar[['Value 1', 'Value 2']], title='Vertical Overlay Bar Chart (Reporter)', orientation='v', xlabel='$', markers=markers, widths=widths, opacities=opacities)
+
+# report: histogram
+r.plot.histo(df=df_line, title='Histogram (Reporter)', ylabel='Observations', markers=markers)
+
+# report: pie and donut (i.e. pie with a hole in the center)
+r.plot.pie(df=df_bar, title='Pie Chart (Reporter)')
+r.plot.pie(df=df_bar, title='Donut (Reporter)', hole=.4)
+
+# report: line plots
+r.h += htmltag.h4('Line Plots')
+r.plot.line(df=df_line, title='Line Plot (Reporter)', xlabel='Entity', ylabel='Value')
+r.h += ir.create_html.plot(line_plot)
+
+# report: line plot, specifying width and color
+lines = [{'width': 7, 'color': 'rgb(59, 115, 186)'}, {'width': 3, 'color': 'rgb(185, 187, 211)'}]
+r.plot.line(df=df_line, title='Line Plot with Width and Color', xlabel='Entity', ylabel='Value', lines=lines)
+
+# report: points with error bar
+# note: only first 3 columns are used for symmetric error bars
+r.plot.errbar(df=df_error, title='Points with Symmetric Error Bars (Reporter)')
+r.plot.errbar(df=df_error, title='Points with Asymmetric Error Bars (Reporter)', symmetric=False)
+
+# report: line with error 
+r.plot.errline(df=df_error[['b', 'error 2']], title='Symmetric Error Lines (Reporter)')
+
+# report: time series line
+df = df_line.copy()
+df['time'] = pd.date_range('2017-11-02 9:00', periods=len(df), freq='T') 
+df.set_index('time', inplace=True)
+r.plot.line(df=df, title='Time Series', xlabel='Time', ylabel='Value')
+
+# report: OHLC
+r.h += htmltag.h4('Open High Low Close (OHCL) Plot')
+r.plot.ohlc(df=df_ohlc, title='OHLC Plot (Reporter)', xlabel='price', ylabel='instrument')
+
+# report: scatter plots
+r.h += htmltag.h4('Scatter Plots')
+r.plot.scatter(df=df_line.set_index('a'), title='Scatter Plot (Reporter)', xlabel='alpha', ylabel='beta')
+r.h += ir.create_html.plot(scatter_plot)
+
+# report: scatter plot with a custom layout
+layout = {
+    'font': {'family':'Arial', 'color':'#77797c'},
+    'xaxis': {'showgrid': False, 'showline': False, 'zerolinecolor': '#acadaf', 'ticks': 'outside', 'tickcolor': '#acadaf', 'hoverformat': '.2f'},
+    'yaxis': {'showgrid': False, 'zeroline': True, 'showline': False, 'zerolinecolor': '#acadaf', 'linewidth': 10, 'ticks': '', 'tickcolor': '#acadaf', 'hoverformat': '.2f'},
+    'width': 500,
+    'height': 500,
+    'showlegend': False
+}
+r.plot.scatter(df=df_line.set_index('a'), title='Scatter Plot Custom Layout (Reporter)', xlabel='alpha', ylabel='beta', markers=markers, layout=layout)
+
+# report: mixed plot types
+r.h += htmltag.h4('Multi Series, Mixed Type Plots')
+r.plot.multi(dfs=[df_line['a'], df_line['b']], types=['line', 'bar'], title='Mixed Line and Bar Plot (Reporter)', xlabel='x label', ylabel='y label')
+r.h += ir.create_html.plot(multi_scatter_plot)
+
+# report: secondary Y-axis
+r.plot.multi(dfs=[df_line['a'], df_line['b']], types=['line', 'line'], title='Secondary Y-Axis (Reporter)', xlabel='x', ylabel='y from a', y2_axis=[False,True], y2label='y from b')
+r.h += ir.create_html.plot(multi_axis_plot)
+
+# report: univariate
+# note: use data_static to specify attributes that are the same across each trace
+df = pd.DataFrame(np.random.randn(1,5), columns=['a', 'b', 'c', 'd', 'e'])
+layout = {
+    'xaxis': {'autorange': True, 'showgrid': False, 'showline': False, 'zerolinecolor': '#acadaf', 'ticks': '', 'tickcolor': '#acadaf', 'showticklabels': True},
+    'yaxis': {'autorange': True, 'showgrid': False, 'zeroline': True, 'showline': False, 'zerolinecolor': '#acadaf', 'autotick': False, 'linewidth': 10, 'showticklabels': False},
+    'width': 500,
+    'height': 250,
+    'showlegend': False,
+}
+data_static={'mode':'markers+text', 'orientation': 'h', 'textposition':'top',}
+data_to_iterate={'text':['a', 'b', 'c', 'd', 'e']}
+r.plot.scatter(df=df, title='Horizontal Univariate Plot', xlabel='alpha', data_static=data_static, data_to_iterate=data_to_iterate, layout=layout)
+
+# report: box plot
+r.h += htmltag.h4('Box Plots')
+r.plot.box(df=df_line, title='Box Plot (Reporter)')
+r.h += ir.create_html.plot(box_plot)
+
+# report: sankey plot
+r.h += htmltag.h4('Sankey Plots')
+r.plot.sankey(df=df_sankey, title='Sankey Plot (Reporter)')
+r.h += ir.create_html.plot(sankey_plot)
+
+# report: generate and save the HTML
 r.generate()

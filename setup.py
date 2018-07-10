@@ -13,5 +13,5 @@ setup(
   package_data = {'idealreport': ['htmlLibs/*.*', 'template.html']},
   include_package_data = True,
   setup_requires = ['sphinx'],
-  install_requires = ['hjson', 'htmltag', 'pandas>=0.18'],
+  install_requires = ['htmltag', 'pandas>=0.18'],
 )
