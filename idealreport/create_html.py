@@ -38,6 +38,11 @@ def pagebreak():
     return htmltag.div('', style = "page-break-after:always;")
 
 
+def paragraph(text):
+    """ wrap the text in a paragraph """
+    return htmltag.p(text)
+
+
 def plot(plot_spec):
     """ create a plot by storing the data in a json file and returning HTML for displaying the plot """
     global next_plot_index
