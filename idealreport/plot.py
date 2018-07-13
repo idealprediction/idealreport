@@ -55,7 +55,7 @@ class PlotSpec:
         if self.return_html:
             return idealreport.create_html.plot(plot_dict)
         else:
-            return self._process_output(plot_dict)
+            return plot_dict
 
     def bar(self, df, title=None, x_label=None, y_label=None, stacked=False, horizontal=False, markers=None, widths=None, data_static=None, data_to_iterate=None, layout=None):
         """ plot a df as a bar chart
