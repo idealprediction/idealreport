@@ -18,9 +18,9 @@ class PlotSpec(object):
 
         note: the dict output can be used as an input to create_html.plot()
 
-        This class is designed to enable users to create plots using concise code. 
+        This class is designed to enable users to create plots using concise code.
         For more extensive control (and verbose code), users can directly create their
-        own dictionaries and call create_html.plot(). 
+        own dictionaries and call create_html.plot().
 
         See sample_plots.py for examples.
     """
@@ -51,7 +51,8 @@ class PlotSpec(object):
 
     def _customize_data(self, plot_dict, custom_data):
         """ customize the plot data
-            This f() appends items from custom_data to plot_dict['data'] e.g. plot_dict['data'][0]['data_to_iterate']
+            This f() appends items from custom_data to plot_dict['data']
+                e.g. plot_dict['data'][0]['data_to_iterate']
             Args:
                 plot_dict (dict): dictionary of plot specifications
                 custom_data (dict): customization items to add to the plot specs data
@@ -59,20 +60,24 @@ class PlotSpec(object):
             Returns:
                 plot_dict (dict): dictionary of plot specifications (with customized items)
             Raises:
-                Exception if the custom_data contains keys that are not in ['data_to_iterate', 'data_static']
+                Exception if the custom_data contains keys not in ['data_to_iterate', 'data_static']
                 Exception if plot_dict['data'] does not exist or is not of length 1
         """
         if custom_data is not None:
             # verify the custom_design contains keys that are expected for this plot type
             expect = ['data_to_iterate', 'data_static']
             if not set(custom_data.keys()).issubset(set(expect)):
-                raise Exception('idealreport.plot._customize_data() custom dictionary contains keys %s that are not in the expected set %s' % (custom_data.keys(), expect))
+                txt = 'idealreport.plot._customize_data() '
+                txt += 'custom_data contains keys %s not in %s' % (custom_data.keys(), expect)
+                raise Exception(txt)
 
-            # check that the data field has already been set in the plot specifications and length is 1
+            # check for plot_dict['data'] and length 1
             if 'data' not in plot_dict:
-                raise Exception('idealreport.plot._customize_data() plot_dict is expected to already be populated with a "data" key')
+                txt = 'idealreport.plot._customize_data() plot_dict["data"] must exist'
+                raise Exception(txt)
             if len(plot_dict['data']) != 1:
-                raise Exception('idealreport.plot._customize_data() len(plot_dict["data"]) must be 1')
+                txt = 'idealreport.plot._customize_data() len(plot_dict["data"]) must be 1'
+                raise Exception(txt)
 
             # append the custom dictionary to plot_dict['data'][0]
             plot_dict['data'][0].update(custom_data)
@@ -81,11 +86,13 @@ class PlotSpec(object):
 
     def _customize_design(self, plot_dict, custom_design, expect):
         """ customize the plot design
-            This f() appends items from custom_design to plot_dict e.g. plot_dict['layout'], plot_dict['lines']
+            This f() appends items from custom_design to plot_dict
+                e.g. plot_dict['layout'], plot_dict['lines']
             Args:
                 plot_dict (dict): dictionary of plot specifications
                 custom_design (dict): customization items to add to the plot specs
-                expect (list): list of expected keys in the custom_design for this plot type, e.g. ['layout', 'markers']
+                expect (list): list of expected keys in the custom_design for this plot type,
+                    e.g. ['layout', 'markers']
             Returns:
                 plot_dict (dict): dictionary of plot specifications (with customized items)
             Raises:
@@ -94,7 +101,9 @@ class PlotSpec(object):
         if custom_design is not None:
             # verify the custom_design contains keys that are expected for this plot type
             if not set(custom_design.keys()).issubset(set(expect)):
-                raise Exception('idealreport.plot._customize_design() custom dictionary contains keys %s that are not in the expected set %s' % (custom_design.keys(), expect))
+                txt = 'idealreport.plot._customize_design() '
+                txt += 'custom_design keys %s are not expected %s' % (custom_design.keys(), expect)
+                raise Exception(txt)
 
             # append the custom dictionary to plot_dict
             plot_dict.update(custom_design)
@@ -117,7 +126,7 @@ class PlotSpec(object):
     def bar(self, df, title=None, x_label=None, y_label=None, stacked=False, horizontal=False, custom_design=None, custom_data=None):
         """ bar chart
             Args:
-                df (DataFrame): df 
+                df (DataFrame): df
                 title, x_label, y_label (str): plot labels (optional)
                 stacked (bool): True --> stacked bar chart (default False)
                 horizontal (bool): True / False --> horizontal / vertical bar
@@ -173,7 +182,7 @@ class PlotSpec(object):
                 df (DataFrame): df
                 title (str): plot labels (optional)
                 groups: TODO
-                horizontal (bool): True / False --> horizontal / vertical 
+                horizontal (bool): True / False --> horizontal / vertical
                 custom_design (dict): customize, expecting keys in set(['layout', 'markers'])
             Returns:
                 plot_dict (dict): dictionary of plot specifications
@@ -233,7 +242,7 @@ class PlotSpec(object):
     def histogram(self, df, title=None, x_label=None, y_label=None, custom_design=None):
         """ error bar chart
             Args:
-                df (DataFrame): df 
+                df (DataFrame): df
                 title, x_label, y_label (str): plot labels (optional)
                 custom_design (dict): customize, expecting keys in set(['layout'])
             Returns:
@@ -398,7 +407,7 @@ class PlotSpec(object):
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)
 
-    def time(self, df, time_format=None, title=None, x_label=None, y_label=None, lines=None, custom_data=None, custom_design=None):
+    def time(self, df, time_format=None, title=None, x_label=None, y_label=None, custom_data=None, custom_design=None):
         """ time series
             Args:
                 df (DataFrame): df (index will be the x-axis)
@@ -415,7 +424,7 @@ class PlotSpec(object):
                 df = df[df.notnull()]
             else:
                 df = df[df.notnull().any(axis=1)]
-            df.index = df.index.map(lambda dt: dt.strftime(gap_time_format))
+            df.index = df.index.map(lambda dt: dt.strftime(time_format))
 
         # plot specifications
         plot_dict = {'data': [{'df': df, 'type': 'line'}],}
