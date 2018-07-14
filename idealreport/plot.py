@@ -1,10 +1,11 @@
-# The idealreport.plot module contains functions that all return python dictionaries 
-# that specify plots. Users can create their own dictionaries and call create_html.plot()
-# or use the functions below to create basic plot types
+""" The idealreport.plot module contains the PlotSpec class to generate either:
+    1) python dictionaries that are later used by create_html.plot() to generate HTML
+    2) HTML
+"""
 
 import idealreport
 
-class PlotSpec:
+class PlotSpec(object):
     """ The PlotSpec class contains functions to create various standard plots:
             basic: line(), pie(), scatter(), time()
             bar charts: bar(), barh(), baro(), histogram()
@@ -14,14 +15,29 @@ class PlotSpec:
             dict if return_html == False
             HTML text if return_html == True
 
-        That dict can then used as an input to create_html.plot() 
+        note: the dict output can be used as an input to create_html.plot()
+
+        This class is designed to enable users to create plots using concise code. 
+        For more extensive control (and verbose code), users can directly create their
+        own dictionaries and call create_html.plot(). 
+
+        See sample_plots.py for examples.
     """
     def __init__(self, return_html=False):
-        """ the store the Reporter instance to allow adding HTML to the report stored internally in Reporter"""
+        """ store a boolean that determines if the PlotSpec f()s will return a dict or HTML"""
         self.return_html = return_html
 
     def _add_labels(self, plot_dict, title=None, x_label=None, y_label=None, y2_label=None):
-        """ add standard labels to a plot dictionary - title is required """
+        """ add standard labels to a plot dictionary
+            Args:
+                plot_dict (dict): dictionary of plot specifications
+                title (str): plot title
+                x_label (str): label for the x axis
+                y_label (str): label for the y axis
+                y2_label (str): label for the second (right) y axis
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
+        """
         if title is not None:
             plot_dict['title'] = title
         if x_label is not None:
@@ -32,18 +48,24 @@ class PlotSpec:
             plot_dict['y2'] = {'label': y2_label}
         return plot_dict
 
-    def _append_dict(self, plot_dict, dict_add_items):
-        """ foc customized plots, append the items from dict_add_items to plot_dict
+    def _customize(self, plot_dict, custom_dict, expect):
+        """ for customized plots, append the items from custom_dict to plot_dict
             e.g. layout, lines, opacities, etc.
             Args:
-                plot_dict (dict): plot specs
-                plot_dict (dict): customization items to add to the plot specs
+                plot_dict (dict): dictionary of plot specifications
+                custom_dict (dict): customization items to add to the plot specs
+                expect (list): list of expected keys in the custom_dict for this plot type, e.g. ['layout', 'markers']
             Returns:
-                plot_dict (dict): plot specs, with additional items
+                plot_dict (dict): dictionary of plot specifications (with customized items)
+            Raises:
+                Exception if the custom_dict contains keys that are not in the "expect" list
         """
-        for key, value in dict_add_items.iteritems():
-            if value is not None:
-                plot_dict[key] = value
+        if custom_dict is not None:
+            # verify the custom_dict contains keys that are expected for this plot type
+            if not set(custom_dict.keys()).issubset(set(expect)):
+                raise Exception('idealreport.plot._customize() custom dictionary contains keys %s that are not in the expected set %s' % (custom_dict.keys(), expect))
+            # append the custom dictionary to plot_dict
+            plot_dict.update(custom_dict)
         return plot_dict
 
     def _process_output(self, plot_dict):
@@ -57,11 +79,16 @@ class PlotSpec:
         else:
             return plot_dict
 
-    def bar(self, df, title=None, x_label=None, y_label=None, stacked=False, horizontal=False, markers=None, widths=None, data_static=None, data_to_iterate=None, layout=None):
-        """ plot a df as a bar chart
+    def bar(self, df, title=None, x_label=None, y_label=None, stacked=False, horizontal=False, data_static=None, data_to_iterate=None, custom_dict=None):
+        """ bar chart
             Args:
-                df (DataFrame): df with index as x axis
-                title, x_label, y_label (str): title is required and others are optional
+                df (DataFrame): df 
+                title, x_label, y_label (str): plot labels (optional)
+                stacked (bool): True --> stacked bar chart (default False)
+                horizontal (bool): True / False --> horizontal / vertical bar
+                custom_dict (dict): customize, expecting keys in set(['layout', 'markers', 'widths'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
 
         # stacked vs normal bar plots
@@ -70,38 +97,34 @@ class PlotSpec:
         # vertical vs horizontal bars
         orientation = 'h' if horizontal else 'v'
 
-        # dict() to store info for plotting
+        # plot specifications
         plot_dict = {'data': [{'df': df, 'type': plot_type, 'orientation': orientation}],}
 
         if data_static is not None:
-            plot_dict['data'][0].update({'data_static':data_static})
+            plot_dict['data'][0].update({'data_static': data_static})
 
         if data_to_iterate is not None:
-            plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
+            plot_dict['data'][0].update({'data_to_iterate': data_to_iterate})
 
-        # append the custom layout, etc, if specified
-        dict_add_items = {'layout': layout, 'markers': markers, 'widths': widths}
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items=dict_add_items)
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout', 'markers', 'widths']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)
 
-    def barh(self, df, title=None, x_label=None, y_label=None, stacked=False, markers=None, widths=None, data_static=None, data_to_iterate=None, layout=None):
-        """ plot a df as a horizontal bar chart
+    def baro(self, df, title=None, x_label=None, y_label=None, orientation='v', data_static=None, data_to_iterate=None, custom_dict=None):
+        """ overlay bar chart
             Args:
-                df (DataFrame): df with index as y axis
-                title, x_label, y_label (str): title is required and others are optional
-        """
-        return self.bar(df=df, title=title, x_label=x_label, y_label=y_label, stacked=stacked, horizontal=True, markers=markers, widths=widths, data_static=data_static, data_to_iterate=data_to_iterate, layout=layout)
-
-    def baro(self, df, title=None, x_label=None, y_label=None, orientation='v', markers=None, widths=None, opacities=None, data_static=None, data_to_iterate=None, layout=None):
-        """ plot a df as an overlay bar chart
-            Args:
-                df (DataFrame): df with index as x axis for vertical, y axis for horizontal
-                title, x_label, y_label (str): title is required and others are optional
+                df (DataFrame): df (index will be the x-axis)
+                title, x_label, y_label (str): plot labels (optional)
+                stacked (bool): True --> stacked bar chart (default False)
+                horizontal (bool): True / False --> horizontal / vertical bar
+                custom_dict (dict): customize, expecting keys in set(['layout', 'markers', 'widths'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
 
+        # plot specifications
         plot_dict = {'data': [{'df': df, 'type': 'overlayBar', 'orientation': orientation}],}
 
         # static / iterate data for customized plots, e.g. univariate
@@ -111,88 +134,104 @@ class PlotSpec:
         if data_to_iterate is not None:
             plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
-        # append the custom layout, etc, if specified
-        dict_add_items = {'layout': layout, 'markers': markers, 'opacities': opacities, 'widths': widths}
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items=dict_add_items)
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout', 'markers', 'opacities', 'widths']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)
 
-    def box(self, df, title=None, groups = None, horizontal=False, markers=None, layout=None):
-
-         # vertical vs horizontal box
+    def box(self, df, title=None, groups=None, horizontal=False, custom_dict=None):
+        """ box plot
+            Args:
+                df (DataFrame): df
+                title (str): plot labels (optional)
+                groups: TODO
+                horizontal (bool): True / False --> horizontal / vertical 
+                custom_dict (dict): customize, expecting keys in set(['layout', 'markers'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
+        """
+        # vertical vs horizontal box
         orientation = 'h' if horizontal else 'v'
 
-        # dict() to store info for plotting
+        # plot specifications
         plot_dict = {'data': [{'df': df, 'type': 'box', 'orientation': orientation, 'groups': groups}],}
 
-        # append the custom layout and markers, if specified
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items={'layout': layout, 'markers': markers})
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout', 'markers']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title)
         return self._process_output(plot_dict)
 
-    def errbar(self, df, title=None, x_label=None, y_label=None, symmetric=True, layout=None):
-        """ plot a df as an error bar chart
+    def errbar(self, df, title=None, x_label=None, y_label=None, symmetric=True, custom_dict=None):
+        """ error bar chart
             Args:
-                df (DataFrame): df with index as x axis, column 1 as y value, column 2 as positive (or symmetric) error, column 3 as negative (optional) error
-                title, x_label, y_label (str): title is required and others are optional
+                df (DataFrame): df (index will be the x-axis)
+                title, x_label, y_label (str): plot labels (optional)
+                stacked (bool): True --> stacked bar chart (default False)
+                symmetric (bool): True / False --> symmetric/unsymmetric error bars around mean (default True)
+                custom_dict (dict): customize, expecting keys in set(['layout'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
-
-        # dict() to store info for plotting
+        # plot specifications
         plot_dict = {'data': [{'df': df, 'type': 'scatter', 'errorBars': {'symmetric': symmetric,}}],}
 
-        # append the custom layout, if specified
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items={'layout': layout})
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)
 
-    def errline(self, df, title=None, x_label=None, y_label=None, fillcolor='rgba(0,100,80,0.2)', layout=None):
-        """ plot a df as a continuous error line chart
+    def errline(self, df, title=None, x_label=None, y_label=None, fillcolor='rgba(0,100,80,0.2)', custom_dict=None):
+        """ continuous error line
             Args:
-                df (DataFrame): df with index as x axis, column 1 as y value, column 2 as symmetric error
-                title, x_label, y_label (str): title is required and others are optional
-                fillcolor (str rgba()): rgba value for fill, default is 'rgba(0,100,80,0.2)'
+                df (DataFrame): df (index will be the x-axis)
+                title, x_label, y_label (str): plot labels (optional)
+                fillcolor (str): rgba value for fill, default is 'rgba(0,100,80,0.2)'
+                custom_dict (dict): customize, expecting keys in set(['layout'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
 
-        # dict() to store info for plotting
+        # plot specifications
         plot_dict = {'data': [{'df': df, 'type': 'continuousErrorBars', 'fillcolor':fillcolor}],}
 
-        # append the custom layout, if specified
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items={'layout': layout})
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)
 
-    def histo(self, df, title=None, x_label=None, y_label=None, markers=None, layout=None):
-        """ plot a df as a histogram
+    def histogram(self, df, title=None, x_label=None, y_label=None, custom_dict=None):
+        """ error bar chart
             Args:
-                df (DataFrame): df with index as x axis
-                title, x_label, y_label (str): title is required and others are optional
+                df (DataFrame): df 
+                title, x_label, y_label (str): plot labels (optional)
+                custom_dict (dict): customize, expecting keys in set(['layout'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
 
-        # dict() to store info for plotting
+        # plot specifications
         plot_dict = {'data': [{'df': df, 'type': 'histogram'}],}
 
-        # append the custom layout and markers, if specified
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items={'layout': layout, 'markers': markers})
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout', 'markers']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)
 
-    def line(self, df, title=None, x_label=None, y_label=None, lines=None, data_static=None, data_to_iterate=None, layout=None):
-        """ plot a df as a line plot 
+    def line(self, df, title=None, x_label=None, y_label=None, data_static=None, data_to_iterate=None, custom_dict=None):
+        """ line plot
             Args:
-                df (DataFrame): df with index as x axis
-                title, x_label, y_label (str): title is required and others are optional
+                df (DataFrame): df (index will be the x-axis)
+                title, x_label, y_label (str): plot labels (optional)
+                custom_dict (dict): customize, expecting keys in set(['layout', 'markers', 'widths'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
-        # dict() to store info for plotting
+        # plot specifications
         plot_dict = {'data': [{'df': df, 'type': 'line'}],}
 
         if data_static is not None:
@@ -201,73 +240,80 @@ class PlotSpec:
         if data_to_iterate is not None:
             plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
-        # append the custom layout and lines, if specified
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items={'layout': layout, 'lines': lines})
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout', 'lines']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)
 
-    def multi(self, dfs, types, title=None, x_label=None, y_label=None, y2_axis=None, y2label=None, markers=None, widths=None, opacities=None, lines=None, data_static=None, data_to_iterate=None, layout=None):
-        """ plot multiple plot types on the same plot 
+    def multi(self, dfs, types, title=None, x_label=None, y_label=None, y2_label=None, y2_axis=None, data_static=None, data_to_iterate=None, custom_dict=None):
+        """ multiple types (line, bar, etc) on a single plot
             Args:
-                dfs (list of DataFrames)
+                df (DataFrame): list of DataFrames
                 types (list of strings): list of plot types corresponding to dfs
-                title, x_label, y_label (str): title is required and others are optional
+                title, x_label, y_label, y2_label (str): plot labels (optional)
                 y2_axis (list of booleans): booleans indicating whether y values should be plotted on secondary y axis (optional)
-                y2label (str): label for secondary y axis (optional)
+                custom_dict (dict): customize, expecting keys in set(['layout', 'lines', 'markers', 'opacities', 'widths'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
+        # list of data for plot specifications
         data = []
         for i in range(len(dfs)):
-            if y2_axis == None:
-                data.append({'df':dfs[i], 'type':types[i]})
+            if y2_axis is None:
+                data.append({'df': dfs[i], 'type': types[i]})
             else:
-                data.append({'df':dfs[i], 'type':types[i], 'y2':y2_axis[i]})
+                data.append({'df': dfs[i], 'type': types[i], 'y2': y2_axis[i]})
 
             # data_static and data_to_iterate need to be appending df by df to the data dict
             if data_static is not None:
                 if len(data_static) > i:
                     if data_static[i] is not None:
-                        data[i].update({'data_static':data_static[i]})
+                        data[i].update({'data_static': data_static[i]})
             if data_to_iterate is not None:
                 if len(data_to_iterate) > i:
                     if data_to_iterate[i] is not None:
-                        data[i].update({'data_to_iterate':data_to_iterate[i]})
+                        data[i].update({'data_to_iterate': data_to_iterate[i]})
 
-        # dict() to store info for plotting
-        plot_dict = {'data': data,}
+        # plot specifications
+        plot_dict = {'data': data}
 
-        # append the custom layout, etc, if specified
-        dict_add_items = {'layout': layout, 'lines': lines, 'markers': markers, 'opacities': opacities, 'widths': widths}
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items=dict_add_items)
-
-        # plot labels
-        plot_dict = self._add_labels(plot_dict, title, x_label, y_label, y2label)
+        # labels and customize the plot, if specified
+        expect = ['layout', 'lines', 'markers', 'opacities', 'widths']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
+        plot_dict = self._add_labels(plot_dict=plot_dict, title=title, x_label=x_label, y_label=y_label, y2_label=y2_label)
         return self._process_output(plot_dict)
 
-    def ohlc(self, df, title=None, series_name = '', x_label=None, y_label=None, layout=None):
-        """ timeseries OHLC
+    def ohlc(self, df, title=None, x_label=None, y_label=None, custom_dict=None):
+        """ open high low close (OHLC) plot
             Args:
-                df (DataFrame): df requires columns open, high, low, close
-                title, x_label, y_label (str): title is required and others are optional
+                df (DataFrame): df with required columns ['open', 'high', 'low', 'close']
+                title, x_label, y_label, (str): plot labels (optional)
+                custom_dict (dict): customize, expecting keys in set(['layout', 'lines'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
-        # dict() to store info for plotting
-        plot_dict = {'data': [{'df': df, 'type': 'ohlc'}], 'name': series_name}
+        # plot specifications
+        # TODO: use 'name'? plot_dict = {'data': [{'df': df, 'type': 'ohlc'}], 'name': series_name}
+        plot_dict = {'data': [{'df': df, 'type': 'ohlc'}]}
 
-        # append the custom layout, if specified
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items={'layout': layout})
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout', 'lines']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)
 
-    def pie(self, df, title=None, hole=None, markers=None, margin=None, data_static=None, data_to_iterate=None, layout=None):
-        """ plot a df as a pie chart 
+    def pie(self, df, title=None, hole=None, data_static=None, data_to_iterate=None, custom_dict=None):
+        """ pie chart
             Args:
-                df (DataFrame): df with index as label / category, first column as value
-                title (str): title is required and others are optional
+                df (DataFrame): df
                 hole (num [0-1]): percentage of pie to cut out for donut (optional)
+                title (str): plot labels (optional)
+                custom_dict (dict): customize, expecting keys in set(['layout', 'lines'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
+        # plot specifications
         if hole is not None:
             plot_dict = {'data': [{'df': df, 'type': 'pie', 'hole': hole}],}
         else:
@@ -279,40 +325,49 @@ class PlotSpec:
         if data_to_iterate is not None:
             plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
-        # append the custom layout and markers, if specified
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items={'layout': layout, 'markers': markers})
-
-        # plot labels
-        plot_dict = self._add_labels(plot_dict, title)        
+        # labels and customize the plot, if specified
+        expect = ['layout', 'margin', 'markers']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
+        plot_dict = self._add_labels(plot_dict, title)
         return self._process_output(plot_dict)
 
-    def sankey(self, df, title=None, node=None, link_labels=[], vertical=False, layout=None):
+    def sankey(self, df, title=None, node=None, link_labels=[], horizontal=True, custom_dict=None):
+        """ sankey chart
+            Args:
+                df (DataFrame): df
+                title (str): plot labels (optional)
+                link_labels (list): list of labels for the various links
+                custom_dict (dict): customize, expecting keys in set(['layout'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
+        """
+        # vertical vs horizontal bars
+        orientation = 'h' if horizontal else 'v'
 
-        # vertical vs horizontal box
-        orientation = 'v' if vertical else 'h'
-
-        # dict() to store info for plotting
+        # plot specifications
         plot_dict = {
             'data': [{'df': df, 'type': 'sankey', 'orientation': orientation, 'linkLabels': link_labels}],
             'type': 'sankey',
             'node': node
         }
 
-        # append the custom layout, if specified
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items={'layout': layout})
-
-        # plot labels
-        plot_dict = self._add_labels(plot_dict, title)
+        # labels and customize the plot, if specified
+        expect = ['layout']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
+        plot_dict = self._add_labels(plot_dict=plot_dict, title=title)
         return self._process_output(plot_dict)
 
-    def scatter(self, df, title=None, x_label=None, y_label=None, markers=None, margin=None, hide_legend=False, data_static=None, data_to_iterate=None, layout=None):
-        """ plot a df as a scatter plot 
+    def scatter(self, df, title=None, x_label=None, y_label=None, data_static=None, data_to_iterate=None, custom_dict=None):
+        """ scatter
             Args:
-                df (DataFrames): df with index as x axis
-                title, x_label, y_label (str): title is required and others are optional
+                df (DataFrame): df (index will be the x-axis)
+                title, x_label, y_label (str): plot labels (optional)
+                custom_dict (dict): customize, expecting keys in set(['layout', 'markers', 'widths'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
-        # dict() to store info for plotting
-        plot_dict = {'data': [{'df': df, 'type': 'scatter'}],}
+        # plot specifications
+        plot_dict = {'data': [{'df': df, 'type': 'scatter'}]}
 
         if data_static is not None:
             plot_dict['data'][0].update({'data_static':data_static})
@@ -320,23 +375,24 @@ class PlotSpec:
         if data_to_iterate is not None:
             plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
-        # append the custom layout, etc, if specified
-        dict_add_items = {'hide_legend': hide_legend, 'layout': layout, 'margin': margin, 'markers': markers}
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items=dict_add_items)
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout', 'margin', 'markers']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)
 
-    def time(self, df, title=None, gap_time_format=None, x_label=None, y_label=None, lines=None, data_static=None, data_to_iterate=None, layout=None):
-        """ plot a df as a timeseries 
+    def time(self, df, time_format=None, title=None, x_label=None, y_label=None, lines=None, data_static=None, data_to_iterate=None, custom_dict=None):
+        """ time series
             Args:
-                df (DataFrame): df with index as x axis
-                gap_time_format (str): If specified, then skip gaps and format timestamps using this str
-                title, x_label, y_label (str): title is required and others are optional
+                df (DataFrame): df (index will be the x-axis)
+                time_format (str): If specified, skip gaps (e.g. weekends) and format timestamps using this str
+                title, x_label, y_label (str): plot labels (optional)
+                custom_dict (dict): customize, expecting keys in set(['layout', 'markers', 'widths'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
         """
         # remove nan and replace timestamps as strings to handle gaps in time
-        if gap_time_format is not None:
+        if time_format is not None:
             is_one_dim = (len(df.shape) == 1) or (df.shape[1] == 1)
             if is_one_dim:
                 df = df[df.notnull()]
@@ -344,7 +400,7 @@ class PlotSpec:
                 df = df[df.notnull().any(axis=1)]
             df.index = df.index.map(lambda dt: dt.strftime(gap_time_format))
 
-        # dict() to store info for plotting
+        # plot specifications
         plot_dict = {'data': [{'df': df, 'type': 'line'}],}
 
         if data_static is not None:
@@ -353,9 +409,8 @@ class PlotSpec:
         if data_to_iterate is not None:
             plot_dict['data'][0].update({'data_to_iterate':data_to_iterate})
 
-        # append the custom layout and markers, if specified
-        plot_dict = self._append_dict(plot_dict=plot_dict, dict_add_items={'layout': layout, 'lines': lines})
-
-        # plot labels
+        # labels and customize the plot, if specified
+        expect = ['layout', 'lines']
+        plot_dict = self._customize(plot_dict=plot_dict, custom_dict=custom_dict, expect=expect)
         plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
         return self._process_output(plot_dict)

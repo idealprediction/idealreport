@@ -184,20 +184,21 @@ r.h += htmltag.text('as well as the Reporter class (Reporter).')
 r.h += htmltag.h4('Bar Charts')
 r.h += r.plot.bar(df=df_bar[['Stat 1', 'Stat 2']], title='Vertical Bar Chart (Reporter)', x_label='Entity', y_label='Stats')
 r.h += ir.create_html.plot(bar_plot)
-r.h += r.plot.barh(df=df_bar[['Value 1', 'Value 2']], title='Horizontal Stacked Bar Chart (Reporter)', stacked=True, x_label='Values')
+r.h += r.plot.bar(df=df_bar[['Value 1', 'Value 2']], title='Horizontal Stacked Bar Chart (Reporter)', horizontal=True, stacked=True, x_label='Values')
 r.h += ir.create_html.plot(stacked_bar_plot)
 
 # report: bar chart, specifying colors for the bars
 markers = [{'color': 'rgb(59, 115, 186)'}, {'color': 'rgb(185, 187, 211)'}]
-r.h += r.plot.bar(df=df_bar[['Stat 1', 'Stat 2']], title='Vertical Bar Chart with Colors (Reporter)', x_label='Entity', y_label='Stats', markers=markers)
+r.h += r.plot.bar(df=df_bar[['Stat 1', 'Stat 2']], title='Vertical Bar Chart with Colors (Reporter)', x_label='Entity', y_label='Stats', custom_dict={'markers': markers})
 
 # report: overlay bar chart, specifying width and opacity of the bars
-widths = [.4, .2]
-opacities = [.6, 1]
-r.h += r.plot.baro(df=df_bar[['Value 1', 'Value 2']], title='Vertical Overlay Bar Chart (Reporter)', orientation='v', x_label='$', markers=markers, widths=widths, opacities=opacities)
+# widths = [.4, .2]
+# opacities = [.6, 1]
+custom_dict = {'markers': markers, 'opacities': [0.6, 1.0], 'widths': [0.4, 0.2]}
+r.h += r.plot.baro(df=df_bar[['Value 1', 'Value 2']], title='Vertical Overlay Bar Chart (Reporter)', orientation='v', x_label='$', custom_dict=custom_dict)
 
 # report: histogram
-r.h += r.plot.histo(df=df_line, title='Histogram (Reporter)', y_label='Observations', markers=markers)
+r.h += r.plot.histogram(df=df_line, title='Histogram (Reporter)', y_label='Observations', custom_dict={'markers': markers})
 
 # report: pie and donut (i.e. pie with a hole in the center)
 r.h += r.plot.pie(df=df_bar, title='Pie Chart (Reporter)')
@@ -210,7 +211,7 @@ r.h += ir.create_html.plot(line_plot)
 
 # report: line plot, specifying width and color
 lines = [{'width': 7, 'color': 'rgb(59, 115, 186)'}, {'width': 3, 'color': 'rgb(185, 187, 211)'}]
-r.h += r.plot.line(df=df_line, title='Line Plot with Width and Color', x_label='Entity', y_label='Value', lines=lines)
+r.h += r.plot.line(df=df_line, title='Line Plot with Width and Color', x_label='Entity', y_label='Value', custom_dict={'lines': lines})
 
 # report: points with error bar
 # note: only first 3 columns are used for symmetric error bars
@@ -244,7 +245,7 @@ layout = {
     'height': 500,
     'showlegend': False
 }
-r.h += r.plot.scatter(df=df_line.set_index('a'), title='Scatter Plot Custom Layout (Reporter)', x_label='alpha', y_label='beta', markers=markers, layout=layout)
+r.h += r.plot.scatter(df=df_line.set_index('a'), title='Scatter Plot Custom Layout (Reporter)', x_label='alpha', y_label='beta', custom_dict={'layout': layout, 'markers': markers})
 
 # report: mixed plot types
 r.h += htmltag.h4('Multi Series, Mixed Type Plots')
@@ -252,7 +253,7 @@ r.h += r.plot.multi(dfs=[df_line['a'], df_line['b']], types=['line', 'bar'], tit
 r.h += ir.create_html.plot(multi_scatter_plot)
 
 # report: secondary Y-axis
-r.h += r.plot.multi(dfs=[df_line['a'], df_line['b']], types=['line', 'line'], title='Secondary Y-Axis (Reporter)', x_label='x', y_label='y from a', y2_axis=[False,True], y2label='y from b')
+r.h += r.plot.multi(dfs=[df_line['a'], df_line['b']], types=['line', 'line'], title='Secondary Y-Axis (Reporter)', x_label='x', y_label='y from a', y2_axis=[False, True], y2_label='y from b')
 r.h += ir.create_html.plot(multi_axis_plot)
 
 # report: univariate
@@ -265,9 +266,9 @@ layout = {
     'height': 250,
     'showlegend': False,
 }
-data_static={'mode':'markers+text', 'orientation': 'h', 'textposition':'top',}
-data_to_iterate={'text':['a', 'b', 'c', 'd', 'e']}
-r.h += r.plot.scatter(df=df, title='Horizontal Univariate Plot', x_label='alpha', data_static=data_static, data_to_iterate=data_to_iterate, layout=layout)
+data_static = {'mode': 'markers+text', 'orientation': 'h', 'textposition': 'top',}
+data_to_iterate = {'text': ['a', 'b', 'c', 'd', 'e']}
+r.h += r.plot.scatter(df=df, title='Horizontal Univariate Plot', x_label='alpha', data_static=data_static, data_to_iterate=data_to_iterate, custom_dict={'layout': layout})
 
 # report: box plot
 r.h += htmltag.h4('Box Plots')
