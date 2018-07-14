@@ -19,22 +19,22 @@ recommended: phantomjs
 from datetime import datetime
 import os
 import htmltag
-from idealreport.reporter import Reporter
-from pandas import DataFrame
+import idealreport
+import pandas as pd
 
 # example P+L data - note: plots will use the index as the x axis 
-df = DataFrame(data={'time': [datetime(2016, 2, 3, 10, 0, 0), datetime(2016, 2, 3, 11, 0, 0), datetime(2016, 2, 3, 12, 0, 0)],
+df = pd.DataFrame(data={'time': [datetime(2016, 2, 3, 10, 0, 0), datetime(2016, 2, 3, 11, 0, 0), datetime(2016, 2, 3, 12, 0, 0)],
                     'P+L': [80, -20, 45]})
 df = df.set_index('time')
 
 # instantiate the Reporter class and specify the title and output location
 outputDir = '.'
-r = Reporter(title='Report', output_file=os.path.join(outputDir, 'report.html'))
+r = idealreport.Reporter(title='Report', output_file=os.path.join(outputDir, 'report.html'))
 
 # Title
 r.h += htmltag.h4('Example report')
 # bar plot 
-r.plot.bar(df=df, title='Hourly P+L', ylabel='$k')
+r.plot.bar(df=df, title='Hourly P+L', y_label='$k')
 
 # render to HTML
 r.generate()
