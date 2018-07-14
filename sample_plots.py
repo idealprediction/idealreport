@@ -189,16 +189,16 @@ r.h += ir.create_html.plot(stacked_bar_plot)
 
 # report: bar chart, specifying colors for the bars
 markers = [{'color': 'rgb(59, 115, 186)'}, {'color': 'rgb(185, 187, 211)'}]
-r.h += r.plot.bar(df=df_bar[['Stat 1', 'Stat 2']], title='Vertical Bar Chart with Colors (Reporter)', x_label='Entity', y_label='Stats', custom_dict={'markers': markers})
+r.h += r.plot.bar(df=df_bar[['Stat 1', 'Stat 2']], title='Vertical Bar Chart with Colors (Reporter)', x_label='Entity', y_label='Stats', custom_design={'markers': markers})
 
 # report: overlay bar chart, specifying width and opacity of the bars
 # widths = [.4, .2]
 # opacities = [.6, 1]
-custom_dict = {'markers': markers, 'opacities': [0.6, 1.0], 'widths': [0.4, 0.2]}
-r.h += r.plot.baro(df=df_bar[['Value 1', 'Value 2']], title='Vertical Overlay Bar Chart (Reporter)', orientation='v', x_label='$', custom_dict=custom_dict)
+custom_design = {'markers': markers, 'opacities': [0.6, 1.0], 'widths': [0.4, 0.2]}
+r.h += r.plot.baroverlay(df=df_bar[['Value 1', 'Value 2']], title='Vertical Overlay Bar Chart (Reporter)', orientation='v', x_label='$', custom_design=custom_design)
 
 # report: histogram
-r.h += r.plot.histogram(df=df_line, title='Histogram (Reporter)', y_label='Observations', custom_dict={'markers': markers})
+r.h += r.plot.histogram(df=df_line, title='Histogram (Reporter)', y_label='Observations', custom_design={'markers': markers})
 
 # report: pie and donut (i.e. pie with a hole in the center)
 r.h += r.plot.pie(df=df_bar, title='Pie Chart (Reporter)')
@@ -211,7 +211,7 @@ r.h += ir.create_html.plot(line_plot)
 
 # report: line plot, specifying width and color
 lines = [{'width': 7, 'color': 'rgb(59, 115, 186)'}, {'width': 3, 'color': 'rgb(185, 187, 211)'}]
-r.h += r.plot.line(df=df_line, title='Line Plot with Width and Color', x_label='Entity', y_label='Value', custom_dict={'lines': lines})
+r.h += r.plot.line(df=df_line, title='Line Plot with Width and Color', x_label='Entity', y_label='Value', custom_design={'lines': lines})
 
 # report: points with error bar
 # note: only first 3 columns are used for symmetric error bars
@@ -245,7 +245,8 @@ layout = {
     'height': 500,
     'showlegend': False
 }
-r.h += r.plot.scatter(df=df_line.set_index('a'), title='Scatter Plot Custom Layout (Reporter)', x_label='alpha', y_label='beta', custom_dict={'layout': layout, 'markers': markers})
+custom_design = {'layout': layout, 'markers': markers}
+r.h += r.plot.scatter(df=df_line.set_index('a'), title='Scatter Plot Custom Layout (Reporter)', x_label='alpha', y_label='beta', custom_design=custom_design)
 
 # report: mixed plot types
 r.h += htmltag.h4('Multi Series, Mixed Type Plots')
@@ -268,7 +269,8 @@ layout = {
 }
 data_static = {'mode': 'markers+text', 'orientation': 'h', 'textposition': 'top',}
 data_to_iterate = {'text': ['a', 'b', 'c', 'd', 'e']}
-r.h += r.plot.scatter(df=df, title='Horizontal Univariate Plot', x_label='alpha', data_static=data_static, data_to_iterate=data_to_iterate, custom_dict={'layout': layout})
+custom_data = {'data_static': data_static, 'data_to_iterate': data_to_iterate}
+r.h += r.plot.scatter(df=df, title='Horizontal Univariate Plot', x_label='alpha', custom_data=custom_data, custom_design={'layout': layout})
 
 # report: box plot
 r.h += htmltag.h4('Box Plots')
