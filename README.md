@@ -10,11 +10,17 @@ pip install idealreport
 ```
 
 ### Dependencies
-requires: htmltag (requires sphinx), pandas 
+* required: htmltag (requires sphinx), pandas 
+* recommended: phantomjs to generate PDFs from HTML
+```
+pip install sphinx, htmltag, pandas
+```
 
-recommended: phantomjs
+### Examples
+See ```sample_plots.py``` for examples of how to create plots using the Reporter class (inputs pandas DataFrames and outputs python dictionaries of plot specifications) and create_html (inputs python dictionaries of plot specifications).
 
-### Example
+This example uses the Reporter class to create an HTML file with a single plot:
+
 ```
 from datetime import datetime
 import os
@@ -28,13 +34,14 @@ df = pd.DataFrame(data={'time': [datetime(2016, 2, 3, 10, 0, 0), datetime(2016, 
 df = df.set_index('time')
 
 # instantiate the Reporter class and specify the title and output location
-outputDir = '.'
-r = idealreport.Reporter(title='Report', output_file=os.path.join(outputDir, 'report.html'))
+output_path = '.'
+r = idealreport.Reporter(title='Report', output_file=os.path.join(output_path, 'report.html'))
 
-# Title
+# title
 r.h += htmltag.h4('Example report')
+
 # bar plot 
-r.plot.bar(df=df, title='Hourly P+L', y_label='$k')
+r.h += r.plot.bar(df=df, title='Hourly P+L', y_label='$k')
 
 # render to HTML
 r.generate()
