@@ -15,6 +15,39 @@ import jinja2
 NEXT_PLOT_INDEX = 1
 
 
+def save(html, title, output_file):
+    """ save HTML output; copies files into the directory containing the output file """
+    global NEXT_PLOT_INDEX
+
+    # the HTML library (css/js) path is relative to this module
+    lib_path = os.path.dirname(__file__)
+
+    # create output directory if needed
+    output_path = os.path.dirname(output_file)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    # copy files referenced by HTML file into output directory
+    source_path = lib_path + '/htmlLibs'
+    file_list = os.listdir(source_path)
+    for fn in file_list:
+        shutil.copy(source_path + '/' + fn, output_path + '/' + fn)
+
+    # fill the template
+    template_contents = open(lib_path + '/template.html').read()
+    template = jinja2.Template(template_contents)
+    html = template.render(title=title, contents=str(html))
+
+    # save the html file to disk
+    open(output_file, 'w').write(html)
+
+    # reset the plot counter
+    NEXT_PLOT_INDEX = 1
+
+
+# ======== HTML generating functions (all return HTML string) ========
+
+
 def frequency_table(item_counts, name, max_items=10):
     """ create a table of item frequencies """
 
@@ -60,36 +93,6 @@ def plot(plot_spec):
     h = htmltag.div('', id=plot_id)
     h += htmltag.script('var g_%s = %s;\ngeneratePlot("%s", g_%s);' % (plot_id, json.dumps(plot_spec), plot_id, plot_id))
     return h
-
-
-def save(html, title, output_file):
-    """ save HTML output; copies files into the directory containing the output file """
-    global NEXT_PLOT_INDEX
-
-    # the HTML library (css/js) path is relative to this module
-    lib_path = os.path.dirname(__file__)
-
-    # create output directory if needed
-    output_path = os.path.dirname(output_file)
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-
-    # copy files referenced by HTML file into output directory
-    source_path = lib_path + '/htmlLibs'
-    file_list = os.listdir(source_path)
-    for fn in file_list:
-        shutil.copy(source_path + '/' + fn, output_path + '/' + fn)
-
-    # fill the template
-    template_contents = open(lib_path + '/template.html').read()
-    template = jinja2.Template(template_contents)
-    html = template.render(title=title, contents=str(html))
-
-    # save the html file to disk
-    open(output_file, 'w').write(html)
-
-    # reset the plot counter
-    NEXT_PLOT_INDEX = 1
 
 
 def table(df, sortable=False, last_row_is_footer=False, col_format=None):
