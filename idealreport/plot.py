@@ -181,7 +181,9 @@ class PlotSpec(object):
             Args:
                 df (DataFrame): df
                 title (str): plot labels (optional)
-                groups: TODO
+                groups: List of groups with size of df
+                names: List of strings with box names
+                boxpoints: List of strings with boxpoints types
                 horizontal (bool): True / False --> horizontal / vertical
                 custom_design (dict): customize, expecting keys in set(['layout', 'markers'])
             Returns:
@@ -191,12 +193,13 @@ class PlotSpec(object):
         orientation = 'h' if horizontal else 'v'
 
         # plot specifications
-        plot_dict = {'data': [{'df': df, 'type': 'box', 'orientation': orientation, 'groups': groups}],}
+        plot_dict = {'data': [{'df': df, 'orientation': orientation, 'groups': groups}],'type': 'box'}
 
         # labels and customize the plot, if specified
-        expect = ['layout', 'markers']
+        expect = ['layout', 'markers', 'names', 'boxpoints']
         plot_dict = self._customize_design(plot_dict=plot_dict, custom_design=custom_design, expect=expect)
         plot_dict = self._add_labels(plot_dict, title)
+        print(plot_dict)
         return self._process_output(plot_dict)
 
     def errbar(self, df, title=None, x_label=None, y_label=None, symmetric=True, custom_design=None):

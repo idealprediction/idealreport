@@ -19,7 +19,9 @@ function generatePlot(id, plotSpec) {
 	if (plotSpec.type === 'heatMap') {
 		generateHeatMap(plotDiv, plotSpec);
 	} else if (plotSpec.type === 'sankey'){
-		generateSankeyPlot(plotDiv, plotSpec);	
+		generateSankeyPlot(plotDiv, plotSpec);
+	} else if (plotSpec.type === 'box'){
+		generateBoxPlot(plotDiv, plotSpec);	
 	} else {
 		generateGenericPlot(plotDiv, plotSpec);
 	}
@@ -186,19 +188,7 @@ function generateGenericPlot(plotDiv, plotSpec) {
 				dataItem.type = 'ohlc';
 				data.push(dataItem);
 				break;
-			} else if (dataSpec.type === 'box') {
-
-				dataItem['type'] = 'box';
-				if (dataItem.orientation === 'h') {
-					dataItem.x = columns[1].values;
-					dataItem.y = dataSpec.groups;
-				} else {
-					dataItem.y = columns[1].values;
-					dataItem.x = dataSpec.groups;
-				}
-
-				dataItem.name = dataSpec.name || columns[j].name;
-	            }
+			} 
 
 			// if error bars, add them
 			if (dataSpec.errorBars) {
@@ -466,6 +456,66 @@ function generateSankeyPlot(plotDiv, plotSpec) {
 
 
 	// determine whether to include interactive elements
+	var staticPlot = true;
+	if (plotSpec.staticPlot !== undefined) {
+		staticPlot = plotSpec.staticPlot;
+	}
+
+	// create the plot
+	Plotly.newPlot(plotDiv, data, layout, {staticPlot: staticPlot});
+}
+
+function generateBoxPlot(plotDiv, plotSpec) {
+
+	var dataSpec = plotSpec.data[0];
+	var columns = dataSpec.df.slice(1);
+	var names = plotSpec.names;
+	var markers = plotSpec.markers;
+	var boxpoints = plotSpec.boxpoints;
+	var groups = dataSpec.groups;
+
+	var data = [];
+	for (var i = 0; i < columns.length; i++){
+		trace = {
+			type: "box", 
+			y: columns[i].values
+		};
+
+		// Change trace.y to trace.x to switch to horizontal orientation
+		if (plotSpec.orientation == 'h'){
+			trace.x = trace.y;
+			delete trace.y;
+		}
+		// Set box names
+		if (names != null){
+			trace.name = names[i];
+		}
+		// Set box markers
+		if (markers != null){
+			trace.marker = markers[i];
+		}
+		// Set boxpoints
+		if (boxpoints != null){
+			trace.boxpoints = boxpoints[i];
+		}
+		// Set groups for vertical orientation
+		if (groups != null && trace.x == null){
+			trace.x = groups;
+		}
+		// Set groups for horizontal orientation
+		else if (groups != null && trace.y == null){
+			trace.y = groups;
+		}
+		
+		data.push(trace);
+	}
+
+	var layout = dataSpec.layout;
+	if (layout == null){
+		layout = {}
+	}
+	layout.title = plotSpec.title;
+
 	var staticPlot = true;
 	if (plotSpec.staticPlot !== undefined) {
 		staticPlot = plotSpec.staticPlot;
