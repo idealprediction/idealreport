@@ -199,7 +199,6 @@ class PlotSpec(object):
         expect = ['layout', 'markers', 'names', 'boxpoints']
         plot_dict = self._customize_design(plot_dict=plot_dict, custom_design=custom_design, expect=expect)
         plot_dict = self._add_labels(plot_dict, title)
-        print(plot_dict)
         return self._process_output(plot_dict)
 
     def errbar(self, df, title=None, x_label=None, y_label=None, symmetric=True, custom_design=None):
@@ -365,12 +364,11 @@ class PlotSpec(object):
         plot_dict = self._add_labels(plot_dict, title)
         return self._process_output(plot_dict)
 
-    def sankey(self, df, title=None, node=None, link_labels=[], horizontal=True, custom_design=None):
+    def sankey(self, df, title=None, horizontal=True, custom_design=None):
         """ sankey chart
             Args:
                 df (DataFrame): df
                 title (str): plot labels (optional)
-                link_labels (list): list of labels for the various links
                 custom_design (dict): customize, expecting keys in set(['layout'])
             Returns:
                 plot_dict (dict): dictionary of plot specifications
@@ -380,13 +378,12 @@ class PlotSpec(object):
 
         # plot specifications
         plot_dict = {
-            'data': [{'df': df, 'type': 'sankey', 'orientation': orientation, 'linkLabels': link_labels}],
+            'data': [{'df': df, 'type': 'sankey', 'orientation': orientation}],
             'type': 'sankey',
-            'node': node
         }
 
         # labels and customize the plot, if specified
-        expect = ['layout']
+        expect = ['layout', 'nodeLabels', 'linkLabels', 'nodeColors']
         plot_dict = self._customize_design(plot_dict=plot_dict, custom_design=custom_design, expect=expect)
         plot_dict = self._add_labels(plot_dict=plot_dict, title=title)
         return self._process_output(plot_dict)
