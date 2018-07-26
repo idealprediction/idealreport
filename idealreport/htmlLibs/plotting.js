@@ -424,29 +424,31 @@ function generateSankeyPlot(plotDiv, plotSpec) {
 
 	var dataSpec = plotSpec.data[0];
 	var columns = dataSpec.df;
+	var nodeLabels = plotSpec.nodeLabels;
+	var linkLabels = plotSpec.linkLabels;
 
-	var data = [{
+	var data = {
 		type: "sankey",
 		orientation: dataSpec.orientation,
-		node: dataSpec.node,
+		node: {},
 
 		link: {
 			source: columns[1].values,
 			target: columns[2].values,
 			value: columns[3].values,
-			label: dataSpec.linkLabels,
+			label: linkLabels,
 		}
-	}];
+	};
 
 	// node labels are required. Add such if none provided
-	if (data[0].node == null){
-		data[0].node = {};
-		let labels = [];
-		for (var i = 0; i<data[0].link.value.length; i++){
-			labels.push(i.toString());
+	if (nodeLabels ===  undefined){
+		nodeLabels = [];
+		for (var i = 0; i<data.link.value.length; i++){
+			nodeLabels.push(i.toString());
 		}
-		data[0].node.label = labels;
 	}
+	data.node.label = nodeLabels;
+
 
 	var layout = dataSpec.layout;
 	if (layout == null){
@@ -462,7 +464,7 @@ function generateSankeyPlot(plotDiv, plotSpec) {
 	}
 
 	// create the plot
-	Plotly.newPlot(plotDiv, data, layout, {staticPlot: staticPlot});
+	Plotly.newPlot(plotDiv, [data], layout, {staticPlot: staticPlot});
 }
 
 function generateBoxPlot(plotDiv, plotSpec) {
