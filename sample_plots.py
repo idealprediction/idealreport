@@ -251,6 +251,20 @@ layout = {
 custom_design = {'layout': layout, 'markers': markers}
 r.h += r.plot.scatter(df=df_line.set_index('a'), title='Scatter Plot Custom Layout (Reporter)', x_label='alpha', y_label='beta', custom_design=custom_design)
 
+# report: scatter plot with a custom layout / shape
+layout = {
+    'font': {'family':'Arial', 'color':'#77797c'},
+    'xaxis': {'showgrid': False, 'showline': False, 'zerolinecolor': '#acadaf', 'ticks': 'outside', 'tickcolor': '#acadaf', 'hoverformat': '.2f'},
+    'yaxis': {'showgrid': False, 'zeroline': True, 'showline': False, 'zerolinecolor': '#acadaf', 'linewidth': 10, 'ticks': '', 'tickcolor': '#acadaf', 'hoverformat': '.2f'},
+    'width': 500,
+    'height': 500,
+    'shapes': [{'type': 'line', 'xref': 'paper', 'yref': 'paper', 'x0': 0, 'y0': 0,
+        'x1': 0.5, 'y1': 0.5, 'line': {'color': 'rgb(50, 171, 96)', 'width': 3}}],
+    'showlegend': False
+}
+custom_design = {'layout': layout, 'markers': markers}
+r.h += r.plot.scatter(df=df_line.set_index('a'), title='Scatter Plot Custom Layout / Shape (Reporter)', x_label='alpha', y_label='beta', custom_design=custom_design)
+
 # report: mixed plot types
 r.h += htmltag.h4('Multi Series, Mixed Type Plots')
 r.h += r.plot.multi(dfs=[df_line['a'], df_line['b']], types=['line', 'bar'], title='Mixed Line and Bar Plot (Reporter)', x_label='x label', y_label='y label')
