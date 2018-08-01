@@ -290,7 +290,7 @@ r.h += r.plot.scatter(df=df, title='Horizontal Univariate Plot', x_label='alpha'
 
 # report: box plot
 r.h += htmltag.h4('Box Plots')
-r.h += r.plot.box(df=df_line, title='Box Plot (Reporter)', custom_design={'names': ['box1', 'box2']}, horizontal=False)
+r.h += r.plot.box(df=df_line, title='Box Plot (Reporter)', horizontal=False)
 r.h += ir.create_html.plot(box_plot)
 
 # report: sankey plot

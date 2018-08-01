@@ -450,12 +450,13 @@ function generateSankeyPlot(plotDiv, plotSpec) {
 	data.node.label = nodeLabels;
 
 
-	var layout = dataSpec.layout;
-	if (layout == null){
-		layout = {}
+	var layout ={};
+	if (plotSpec.layout !== undefined) {
+		layout = plotSpec.layout;
 	}
-	layout.title = plotSpec.title;
-
+	if (plotSpec.title !== undefined){
+		layout.title = plotSpec.title;
+	}
 
 	// determine whether to include interactive elements
 	var staticPlot = false;
@@ -509,11 +510,13 @@ function generateBoxPlot(plotDiv, plotSpec) {
 		data.push(trace);
 	}
 
-	var layout = dataSpec.layout;
-	if (layout == null){
-		layout = {}
+	var layout ={};
+	if (plotSpec.layout !== undefined) {
+		layout = plotSpec.layout;
 	}
-	layout.title = plotSpec.title;
+	if (plotSpec.title !== undefined){
+		layout.title = plotSpec.title;
+	}
 
 	var staticPlot = false;
 	if (plotSpec.staticPlot !== undefined) {
