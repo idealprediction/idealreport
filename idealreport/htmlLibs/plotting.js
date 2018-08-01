@@ -458,7 +458,7 @@ function generateSankeyPlot(plotDiv, plotSpec) {
 
 
 	// determine whether to include interactive elements
-	var staticPlot = true;
+	var staticPlot = false;
 	if (plotSpec.staticPlot !== undefined) {
 		staticPlot = plotSpec.staticPlot;
 	}
@@ -480,17 +480,14 @@ function generateBoxPlot(plotDiv, plotSpec) {
 	for (var i = 0; i < columns.length; i++){
 		trace = {
 			type: "box", 
-			y: columns[i].values
+			y: columns[i].values,
+			name: columns[i].name,
 		};
 
 		// Change trace.y to trace.x to switch to horizontal orientation
-		if (plotSpec.orientation == 'h'){
+		if (dataSpec.orientation == 'h'){
 			trace.x = trace.y;
 			delete trace.y;
-		}
-		// Set box names
-		if (names != null){
-			trace.name = names[i];
 		}
 		// Set box markers
 		if (markers != null){
@@ -518,7 +515,7 @@ function generateBoxPlot(plotDiv, plotSpec) {
 	}
 	layout.title = plotSpec.title;
 
-	var staticPlot = true;
+	var staticPlot = false;
 	if (plotSpec.staticPlot !== undefined) {
 		staticPlot = plotSpec.staticPlot;
 	}

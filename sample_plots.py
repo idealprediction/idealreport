@@ -149,11 +149,11 @@ box_plot = {
     'data': [
         {
             'df': df_line,
+            'orientation': 'v',
         },
     ],
-    'names': ['box1', 'box2'],
     'type': 'box',
-    'staticPlot': False
+    'staticPlot': False,
 }
 
 # ps: sankey plot
@@ -162,7 +162,6 @@ sankey_plot = {
     'data': [
         {
             'df': df_sankey,
-            'type': 'sankey',
         },
     ],
     'nodeLabels': ['node_a', 'node_b', 'node_c', 'node_d', 'node_e', 'node_f'],
@@ -277,7 +276,7 @@ r.h += r.plot.scatter(df=df, title='Horizontal Univariate Plot', x_label='alpha'
 
 # report: box plot
 r.h += htmltag.h4('Box Plots')
-r.h += r.plot.box(df=df_line, title='Box Plot (Reporter)', custom_design={'names': ['box1', 'box2']})
+r.h += r.plot.box(df=df_line, title='Box Plot (Reporter)', custom_design={'names': ['box1', 'box2']}, horizontal=False)
 r.h += ir.create_html.plot(box_plot)
 
 # report: sankey plot
