@@ -3,10 +3,16 @@ Ideal Prediction reporting framework
 
 Idealreport translates data from pandas DataFrames to HTML presentations, including plots, tables, and text.  The HTML is rendered using javascript libraries based on D3.js so the resulting graphs are aesthetically pleasing.
 
-### Install
-Pip is the easiest install method.  The module is built as a python wheel so it easily works across various OSs.
+## Install
+### Idealreport Code
+Option 1: Pip is the easiest install method.  The module is built as a python wheel so it easily works across various OSs.
 ```
 pip install idealreport
+```
+
+Option 2: For the latest updates, clone the repository.
+```
+git clone https://github.com/idealprediction/idealreport
 ```
 
 ### Dependencies
