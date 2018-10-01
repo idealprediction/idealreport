@@ -14,7 +14,8 @@ For example, for mac:
 ``` conda create --name py2 ```
 1. Activate the environment
 ```
-source activate py2
+source activate py2  # linux, mac
+activate py2         # window
 pip install sphinx, htmltag, pandas
 python
 ```
@@ -32,9 +33,10 @@ git clone https://github.com/idealprediction/idealreport
 
 ### Dependencies
 * required: htmltag (requires sphinx), pandas 
+* important note: install sphinx **before** installing htmltag
 * recommended: phantomjs to generate PDFs from HTML
 ```
-pip install sphinx, htmltag, pandas
+pip install sphinx, htmltag, pandas 
 ```
 
 ### Examples
