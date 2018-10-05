@@ -3,17 +3,40 @@ Ideal Prediction reporting framework
 
 Idealreport translates data from pandas DataFrames to HTML presentations, including plots, tables, and text.  The HTML is rendered using javascript libraries based on D3.js so the resulting graphs are aesthetically pleasing.
 
-### Install
-Pip is the easiest install method.  The module is built as a python wheel so it easily works across various OSs.
+## Install
+### Python
+For your python install, we recommend miniconda: https://conda.io/miniconda.html which enables setting up segregated environments. 
+
+For example, for mac:
+1. Install miniconda https://conda.io/docs/user-guide/install/index.html
+1. Follow the instructions to configure the conda script https://conda.io/docs/user-guide/install/macos.html
+1. Create an environment https://conda.io/docs/user-guide/getting-started.html
+``` conda create --name py2 ```
+1. Activate the environment
+```
+source activate py2  # linux, mac
+activate py2         # window
+pip install sphinx, htmltag, pandas
+python
+```
+
+### Idealreport Code
+Option 1: Pip is the easiest install method.  The module is built as a python wheel so it easily works across various OSs. This method will only get the most recent tagged release, which is not necessarily the most recent version of the code.
 ```
 pip install idealreport
 ```
 
+Option 2: For the latest code, clone the repository.
+```
+git clone https://github.com/idealprediction/idealreport
+```
+
 ### Dependencies
 * required: htmltag (requires sphinx), pandas 
+* important note: install sphinx **before** installing htmltag
 * recommended: phantomjs to generate PDFs from HTML
 ```
-pip install sphinx, htmltag, pandas
+pip install sphinx, htmltag, pandas 
 ```
 
 ### Examples
