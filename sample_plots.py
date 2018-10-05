@@ -189,6 +189,11 @@ r.h += ir.create_html.plot(bar_plot)
 r.h += r.plot.bar(df=df_bar[['Value 1', 'Value 2']], title='Horizontal Stacked Bar Chart (Reporter)', horizontal=True, stacked=True, x_label='Values')
 r.h += ir.create_html.plot(stacked_bar_plot)
 
+# report: bar chart with custom widths
+df = pd.DataFrame(data={'a': 0.23, 'b': 0.0, 'c': 0.30, 'd': 0.0, 'e': 0.47}, index=['percentage'])
+custom_design = {'widths': [0.4, 0.4, 0.4, 0.4, 0.4]}
+r.h += r.plot.bar(df=df, horizontal=True, stacked=True, custom_design=custom_design)
+
 # report: bar chart, specifying colors for the bars
 markers = [{'color': 'rgb(59, 115, 186)'}, {'color': 'rgb(185, 187, 211)'}]
 r.h += r.plot.bar(df=df_bar[['Stat 1', 'Stat 2']], title='Vertical Bar Chart with Colors (Reporter)', x_label='Entity', y_label='Stats', custom_design={'markers': markers})
