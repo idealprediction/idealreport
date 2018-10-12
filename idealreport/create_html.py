@@ -95,6 +95,27 @@ def plot(plot_spec):
     return h
 
 
+def plotly(data, layout, modebar=False):
+    """ directly call Plotly.newPlot(data, layout)
+        Args:
+            data (list): list of dictionaries
+                each dictionary has keys relevant to the plot e.g. x, y, mode, type
+            layout (dict): dictionary to describe the overall layout e.g. title, xaxis.label
+        Returns:
+            HTML (str)
+    """
+    # compute an ID for this plot
+    global NEXT_PLOT_INDEX
+    plot_id = 'plot%d' % NEXT_PLOT_INDEX
+    NEXT_PLOT_INDEX += 1
+
+    # create HTML
+    mode_bar_dict = {'displayModeBar': modebar}
+    h = htmltag.div('', id=plot_id)
+    h += htmltag.script('\nPlotly.newPlot(%s, %s, %s, %s);' % (plot_id, json.dumps(data), json.dumps(layout), json.dumps(mode_bar_dict)))
+    return h
+
+
 def table(df, sortable=False, last_row_is_footer=False, col_format=None):
     """ generate an HTML table from a pandas data frame
         Args:
