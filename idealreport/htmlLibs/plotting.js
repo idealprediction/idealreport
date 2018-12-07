@@ -382,14 +382,15 @@ function generateHeatMap(plotDiv, plotSpec) {
 		}
 	];
 
-	// colorscale 
+	// append data variables: colorscale, reversescale, showscale (i.e. colorbar side scale)
 	if (plotSpec.colorscale) {
 		data[0]['colorscale'] = plotSpec.colorscale;
 	}
-	
-	// include colorbar side scale
-	var showscale = true;
-	if (plotSpec.showscale !== undefined) {
+	if (plotSpec.reversescale) {
+		data[0]['reversescale'] = plotSpec.reversescale;
+	}
+	//if (plotSpec.showscale !== undefined) {
+	if (plotSpec.showscale) {
 		data[0]['showscale'] = plotSpec.showscale;
 	}
 
@@ -398,15 +399,17 @@ function generateHeatMap(plotDiv, plotSpec) {
 		xaxis: {}, 
 		yaxis: {}
 	};
-	if (plotSpec.title) {
-		layout.title = plotSpec.title;
-		if (plotSpec.labelX)
-			layout.xaxis.title = plotSpec.labelX;
-		if (plotSpec.labelY)
-			layout.yaxis.title = plotSpec.labelY;
+	if (plotSpec.labelX) {
+		layout.xaxis.title = plotSpec.labelX;
+	}
+	if (plotSpec.labelY) {
+		layout.yaxis.title = plotSpec.labelY;
 	}
 	if (plotSpec.margin) {
 		layout.margin = plotSpec.margin;
+	}
+	if (plotSpec.title) {
+		layout.title = plotSpec.title;
 	}
 	
 	// determine whether to include interactive elements
@@ -418,6 +421,7 @@ function generateHeatMap(plotDiv, plotSpec) {
 	// create the plot
 	Plotly.newPlot(plotDiv, data, layout, {staticPlot: staticPlot});
 }
+
 
 function generateSankeyPlot(plotDiv, plotSpec) {
 
