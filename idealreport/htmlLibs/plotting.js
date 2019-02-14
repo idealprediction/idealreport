@@ -18,10 +18,12 @@ function generatePlot(id, plotSpec) {
 	// generate the plot
 	if (plotSpec.type === 'heatMap') {
 		generateHeatMap(plotDiv, plotSpec);
-	} else if (plotSpec.type === 'sankey'){
+	} else if (plotSpec.type === 'sankey') {
 		generateSankeyPlot(plotDiv, plotSpec);
-	} else if (plotSpec.type === 'box'){
-		generateBoxPlot(plotDiv, plotSpec);	
+	} else if (plotSpec.type === 'box') {
+		generateBoxPlot(plotDiv, plotSpec);
+	} else if (plotSpec.type === 'cubism') {
+		generateCubismPlot(plotDiv, plotSpec);
 	} else {
 		generateGenericPlot(plotDiv, plotSpec);
 	}
@@ -529,4 +531,61 @@ function generateBoxPlot(plotDiv, plotSpec) {
 
 	// create the plot
 	Plotly.newPlot(plotDiv, data, layout, {staticPlot: staticPlot});
+}
+
+
+function createMetric(context, label, data) {
+	return context.metric(function(start, stop, step, callback) {
+				callback(null, data);
+			}, label);
+}
+
+
+/* from https://stackoverflow.com/questions/27012854/change-iso-date-string-to-date-object-javascript */
+function parseISOString(s) {
+	var b = s.split(/\D+/);
+	return new Date(Date.UTC(b[0], --b[1], b[2], b[3], b[4], b[5], b[6]));
+}
+
+
+function generateCubismPlot(plotDiv, plotSpec) {
+
+	var size = plotSpec.plots[0].data.length;  // assume all plots have same number of data items for now
+
+	var context = cubism.context()
+		.serverDelay(Date.now() - parseISOString(plotSpec.startTimestamp) - plotSpec.timeStep * 1000.0 * size)
+		.clientDelay(0)
+		.step(plotSpec.timeStep * 1000.0)  // convert seconds to milliseconds
+		.size(size)  // number of data items
+		.stop();  // don't attempt to do live updates
+
+	d3.select('#' + plotDiv.id).call(function(div) {
+
+		div.attr('style', 'width:' + size + 'px;position:relative');  // needed to show cursor value in correct location
+
+		div.append('div')
+			.attr('class', 'axis')
+			.call(context.axis().orient('top').ticks(plotSpec.tickCount).tickFormat(d3.time.format(plotSpec.timestampFormat)));
+
+		for (var i = 0; i < plotSpec.plots.length; i++) {
+			var plotItem = plotSpec.plots[i];
+			var metric = createMetric(context, plotItem.label, plotItem.data);
+			div.append('div')
+				.datum(metric)
+				.attr('class', 'horizon')
+				.call(context.horizon()
+					.height(plotItem.height)
+					.extent([plotItem.min, plotItem.max])
+				);
+		}
+
+		div.append('div')
+			.attr('class', 'rule')
+			.call(context.rule());
+
+	});
+
+	context.on("focus", function(i) {
+		d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
+	});
 }

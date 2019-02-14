@@ -270,6 +270,10 @@ def prep_plot_spec(plot_spec):
     if time_x:
         plot_spec['typeX'] = 'timestamp'
 
+    # convert timestamp fields
+    if 'startTimestamp' in plot_spec:
+        plot_spec['startTimestamp'] = plot_spec['startTimestamp'].isoformat() + 'Z'
+
     # check for out-of-date API calls
     for ds in data_specs:
         if 'format' in ds:
