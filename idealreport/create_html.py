@@ -3,7 +3,7 @@
 """
 
 import os
-import json
+import ujson as json
 import shutil
 
 # external libraries
