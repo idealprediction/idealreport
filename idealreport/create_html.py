@@ -300,7 +300,7 @@ def prep_plot_spec(plot_spec):
     # check for out-of-date API calls
     for ds in data_specs:
         if 'format' in ds:
-            print 'warning: format in data spec no longer supported'
+            print('warning: format in data spec no longer supported')
 
     return plot_spec
 

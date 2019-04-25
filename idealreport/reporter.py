@@ -31,7 +31,7 @@ class Reporter(object):
     def generate(self):
         """ generate and save the report HTML """
         idealreport.create_html.save(self.h, self.title, self.output_file)
-        print 'saved report to %s' % self.output_file
+        print('saved report to %s' % self.output_file)
 
     def pagebreak(self):
         """ add a page break to the html """
