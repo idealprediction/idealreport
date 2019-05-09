@@ -29,18 +29,18 @@ def save(html, title, output_file):
         os.makedirs(output_path)
 
     # copy files referenced by HTML file into output directory
-    source_path = lib_path + '/htmlLibs'
+    source_path = lib_path + "/htmlLibs"
     file_list = os.listdir(source_path)
     for fn in file_list:
-        shutil.copy(source_path + '/' + fn, output_path + '/' + fn)
+        shutil.copy(source_path + "/" + fn, output_path + "/" + fn)
 
     # fill the template
-    template_contents = open(lib_path + '/template.html').read()
+    template_contents = open(lib_path + "/template.html").read()
     template = jinja2.Template(template_contents)
     html = template.render(title=title, contents=str(html))
 
     # save the html file to disk
-    open(output_file, 'w').write(html)
+    open(output_file, "w").write(html)
 
     # reset the plot counter
     NEXT_PLOT_INDEX = 1
@@ -53,7 +53,7 @@ def frequency_table(item_counts, name, max_items=10):
     """ create a table of item frequencies """
 
     # create header
-    row = htmltag.tr(htmltag.th(name), htmltag.th('Count'))
+    row = htmltag.tr(htmltag.th(name), htmltag.th("Count"))
     thead = htmltag.thead(row)
 
     # add items
@@ -71,7 +71,7 @@ def frequency_table(item_counts, name, max_items=10):
 
 def pagebreak():
     """ create a page break (will show up when printing to pdf) """
-    return htmltag.div('', style="page-break-after:always;")
+    return htmltag.div("", style="page-break-after:always;")
 
 
 def paragraph(text):
@@ -84,14 +84,14 @@ def plot(plot_spec):
     global NEXT_PLOT_INDEX
 
     # compute an ID for this plot
-    plot_id = 'plot%d' % NEXT_PLOT_INDEX
+    plot_id = "plot%d" % NEXT_PLOT_INDEX
     NEXT_PLOT_INDEX += 1
 
     # process the dictionary of plot specifications
     plot_spec = prep_plot_spec(plot_spec)
 
     # create HTML
-    h = htmltag.div('', id=plot_id)
+    h = htmltag.div("", id=plot_id)
     h += htmltag.script('var g_%s = %s;\ngeneratePlot("%s", g_%s);' % (plot_id, json.dumps(plot_spec), plot_id, plot_id))
     return h
 
@@ -107,13 +107,13 @@ def plotly(data, layout, modebar=False):
     """
     # compute an ID for this plot
     global NEXT_PLOT_INDEX
-    plot_id = 'plot%d' % NEXT_PLOT_INDEX
+    plot_id = "plot%d" % NEXT_PLOT_INDEX
     NEXT_PLOT_INDEX += 1
 
     # create HTML
-    mode_bar_dict = {'displayModeBar': modebar}
-    h = htmltag.div('', id=plot_id)
-    h += htmltag.script('\nPlotly.newPlot(%s, %s, %s, %s);' % (plot_id, json.dumps(data), json.dumps(layout), json.dumps(mode_bar_dict)))
+    mode_bar_dict = {"displayModeBar": modebar}
+    h = htmltag.div("", id=plot_id)
+    h += htmltag.script("\nPlotly.newPlot(%s, %s, %s, %s);" % (plot_id, json.dumps(data), json.dumps(layout), json.dumps(mode_bar_dict)))
     return h
 
 
@@ -129,13 +129,13 @@ def plotly_ujson(data, layout, modebar=False):
     """
     # compute an ID for this plot
     global NEXT_PLOT_INDEX
-    plot_id = 'plot%d' % NEXT_PLOT_INDEX
+    plot_id = "plot%d" % NEXT_PLOT_INDEX
     NEXT_PLOT_INDEX += 1
 
     # create HTML
-    mode_bar_dict = {'displayModeBar': modebar}
-    h = htmltag.div('', id=plot_id)
-    h += htmltag.script('\nPlotly.newPlot(%s, %s, %s, %s);' % (plot_id, ujson.dumps(data), json.dumps(layout), json.dumps(mode_bar_dict)))
+    mode_bar_dict = {"displayModeBar": modebar}
+    h = htmltag.div("", id=plot_id)
+    h += htmltag.script("\nPlotly.newPlot(%s, %s, %s, %s);" % (plot_id, ujson.dumps(data), json.dumps(layout), json.dumps(mode_bar_dict)))
     return h
 
 
@@ -153,12 +153,7 @@ def table(df, sortable=False, last_row_is_footer=False, col_format=None):
     row_count = len(df)
 
     # default column formatting
-    default_format = {
-        'align': 'right',
-        'decimal_places': 2,
-        'commas': True,
-        'width': None,
-    }
+    default_format = {"align": "right", "decimal_places": 2, "commas": True, "width": None}
 
     def get_format(col, attribute):
         """ helper function to get column formatting
@@ -170,8 +165,8 @@ def table(df, sortable=False, last_row_is_footer=False, col_format=None):
         """
         if col in col_format and attribute in col_format[col_name]:
             value = col_format[col_name][attribute]
-        elif '*' in col_format and attribute in col_format['*']:
-            value = col_format['*'][attribute]
+        elif "*" in col_format and attribute in col_format["*"]:
+            value = col_format["*"][attribute]
         else:
             value = default_format[attribute]
         return value
@@ -188,39 +183,39 @@ def table(df, sortable=False, last_row_is_footer=False, col_format=None):
             h2 = col_name[1]
             if h1 == prev_header:
                 span += 1
-                if i == (len(df.columns)-1):
-                    headers.append(htmltag.th(h1, colspan=span, _class='centered'))
+                if i == (len(df.columns) - 1):
+                    headers.append(htmltag.th(h1, colspan=span, _class="centered"))
             else:
-                headers.append(htmltag.th(prev_header, colspan=span, _class='centered'))
-                if i == (len(df.columns)-1):
+                headers.append(htmltag.th(prev_header, colspan=span, _class="centered"))
+                if i == (len(df.columns) - 1):
                     headers.append(htmltag.th(h1, colspan=1))
                 else:
                     prev_header = h1
                     span = 1
 
-            if get_format(col_name, 'align') == 'right':
-                items.append(htmltag.th(h2, _class='alignRight'))
+            if get_format(col_name, "align") == "right":
+                items.append(htmltag.th(h2, _class="alignRight"))
             else:
                 items.append(htmltag.th(h2))
         thead = htmltag.thead(htmltag.tr(*headers), htmltag.tr(*items))
 
     else:
         for col_name in df.columns:
-            if get_format(col_name, 'align') == 'right':
+            if get_format(col_name, "align") == "right":
                 if sortable:
-                    items.append(htmltag.th(col_name, **{'class':'alignRight', 'data-sortable':'true'}))
+                    items.append(htmltag.th(col_name, **{"class": "alignRight", "data-sortable": "true"}))
                 else:
-                    items.append(htmltag.th(col_name, _class='alignRight'))
+                    items.append(htmltag.th(col_name, _class="alignRight"))
             else:
                 if sortable:
-                    items.append(htmltag.th(col_name, **{'data-sortable':'true'}))
+                    items.append(htmltag.th(col_name, **{"data-sortable": "true"}))
                 else:
                     items.append(htmltag.th(col_name))
 
         thead = htmltag.thead(htmltag.tr(*items))
 
     # create body (and optionally footer)
-    tfoot = ''
+    tfoot = ""
     rows = []
     for i, row in df.iterrows():
         values = row.tolist()
@@ -228,17 +223,17 @@ def table(df, sortable=False, last_row_is_footer=False, col_format=None):
         for j, v in enumerate(values):
             col_name = df.columns[j]
             if is_numeric(v):
-                decimal_places = get_format(col_name, 'decimal_places')
-                if get_format(col_name, 'commas'):
-                    pattern = '{:,.' + str(decimal_places) + 'f}'
+                decimal_places = get_format(col_name, "decimal_places")
+                if get_format(col_name, "commas"):
+                    pattern = "{:,." + str(decimal_places) + "f}"
                 else:
-                    pattern = '{:.' + str(decimal_places) + 'f}'
+                    pattern = "{:." + str(decimal_places) + "f}"
                 v = pattern.format(v)
-            if get_format(col_name, 'align') == 'right':
-                items.append(htmltag.td(v, _class='alignRight'))
+            if get_format(col_name, "align") == "right":
+                items.append(htmltag.td(v, _class="alignRight"))
             # TODO - need to implement width control
-            #width = get_format(col_name, 'width')
-            #if is_numeric(width):
+            # width = get_format(col_name, 'width')
+            # if is_numeric(width):
             #    style='width:' + str(width) + 'px'
             #    items.append(htmltag.td(v, style=style ))
             else:
@@ -251,11 +246,11 @@ def table(df, sortable=False, last_row_is_footer=False, col_format=None):
     # if sortable, apply the bootstrap-table tab, bs-table
     if sortable:
         if row_count > 15:
-            return htmltag.table(thead, tbody, tfoot, **{'class':'bs-table', 'data-striped':'true', 'data-height':'600'})
+            return htmltag.table(thead, tbody, tfoot, **{"class": "bs-table", "data-striped": "true", "data-height": "600"})
         else:
-            return htmltag.table(thead, tbody, tfoot, **{'class':'bs-table', 'data-striped':'true'})
+            return htmltag.table(thead, tbody, tfoot, **{"class": "bs-table", "data-striped": "true"})
     else:
-        return htmltag.table(thead, tbody, tfoot, **{'class':'table-striped'})
+        return htmltag.table(thead, tbody, tfoot, **{"class": "table-striped"})
 
 
 # ======== report spec functions ========
@@ -267,40 +262,40 @@ def prep_plot_spec(plot_spec):
     # make a copy of the plot spec (except data) so that we can re-generate
     # a report without regenerating the plot specs
     # (converting the data frames will take place only in this copy)
-    data_specs = plot_spec.get('data', [])
-    plot_spec = {k: v for (k, v) in plot_spec.items() if k != 'data'} # copy all but data
-    plot_spec['data'] = []
+    data_specs = plot_spec.get("data", [])
+    plot_spec = {k: v for (k, v) in plot_spec.items() if k != "data"}  # copy all but data
+    plot_spec["data"] = []
 
     # get original value for timestamp type
-    time_x = (plot_spec.get('typeX', 'none') == 'timestamp')
+    time_x = plot_spec.get("typeX", "none") == "timestamp"
 
     # convert data frames
     for ds in data_specs:
         # check for timestamp index
-        df = ds['df']
-        time_df = df.index.dtype == 'datetime64[ns]'
+        df = ds["df"]
+        time_df = df.index.dtype == "datetime64[ns]"
         if time_x and not time_df:
-            raise Exception('typeX is timestamp but df has non-timestamp index')
+            raise Exception("typeX is timestamp but df has non-timestamp index")
         if time_df:
             time_x = True
 
         # create new data spec with df converted to dict/lists for json
-        new_data_spec = {k: v for (k, v) in ds.items() if k != 'df'} # copy all but df
-        new_data_spec['df'] = dataframe_to_dict(df)
-        plot_spec['data'].append(new_data_spec)
+        new_data_spec = {k: v for (k, v) in ds.items() if k != "df"}  # copy all but df
+        new_data_spec["df"] = dataframe_to_dict(df)
+        plot_spec["data"].append(new_data_spec)
 
     # set timestamp type
     if time_x:
-        plot_spec['typeX'] = 'timestamp'
+        plot_spec["typeX"] = "timestamp"
 
     # convert timestamp fields
-    if 'startTimestamp' in plot_spec:
-        plot_spec['startTimestamp'] = plot_spec['startTimestamp'].isoformat() + 'Z'
+    if "startTimestamp" in plot_spec:
+        plot_spec["startTimestamp"] = plot_spec["startTimestamp"].isoformat() + "Z"
 
     # check for out-of-date API calls
     for ds in data_specs:
-        if 'format' in ds:
-            print('warning: format in data spec no longer supported')
+        if "format" in ds:
+            print("warning: format in data spec no longer supported")
 
     return plot_spec
 
@@ -312,29 +307,17 @@ def dataframe_to_dict(df):
     """ convert a pandas DataFrame (or series) to a list of columns ready for conversion to JSON """
     # assume df is a pd.DataFrame if it contains "columns", else it is a pd.Series
     columns = []
-    if hasattr(df, 'columns'): # data frame
-        columns.append({ # index
-            'name': df.index.name,
-            'values': json.loads(df.to_json(orient='split', date_format='iso'))['index']
-        })
-        for col in df.columns: # columns
-            columns.append({
-                'name': col,
-                'values': json.loads(df[col].to_json(orient='values', date_format='iso'))
-            })
-    else: # series
+    if hasattr(df, "columns"):  # data frame
+        columns.append({"name": df.index.name, "values": json.loads(df.to_json(orient="split", date_format="iso"))["index"]})  # index
+        for col in df.columns:  # columns
+            columns.append({"name": col, "values": json.loads(df[col].to_json(orient="values", date_format="iso"))})
+    else:  # series
         series = df
-        columns.append({ # index
-            'name': series.index.name,
-            'values': json.loads(series.to_json(orient='split', date_format='iso'))['index']
-        })
-        columns.append({ # values
-            'name': series.name,
-            'values': json.loads(series.to_json(orient='values', date_format='iso'))
-        })
+        columns.append({"name": series.index.name, "values": json.loads(series.to_json(orient="split", date_format="iso"))["index"]})  # index
+        columns.append({"name": series.name, "values": json.loads(series.to_json(orient="values", date_format="iso"))})  # values
     return columns
 
 
 def is_numeric(value):
     """ check whether a value is numeric (could be float, int, or numpy numeric type) """
-    return hasattr(value, '__sub__') and hasattr(value, '__mul__')
+    return hasattr(value, "__sub__") and hasattr(value, "__mul__")

@@ -15,11 +15,12 @@ class Reporter(object):
             h (str): string of HTML
             plot (idealreport.plot.PlotSpec): creates HTML of plots
     """
+
     def __init__(self, title, output_file):
         self.title = title
         self.output_file = output_file
         # html string
-        self.h = ''
+        self.h = ""
         # wrapper for plots, specifying to return HTML (instead of plot_spec dict)
         self.plot = idealreport.plot.PlotSpec(return_html=True)
 
@@ -31,7 +32,7 @@ class Reporter(object):
     def generate(self):
         """ generate and save the report HTML """
         idealreport.create_html.save(self.h, self.title, self.output_file)
-        print('saved report to %s' % self.output_file)
+        print("saved report to %s" % self.output_file)
 
     def pagebreak(self):
         """ add a page break to the html """
@@ -48,6 +49,7 @@ class Reporter(object):
 
 class Row(object):
     """ The Row class creates a row in the report using a CSS grid """
+
     def __init__(self, reporter):
         self._reporter = reporter
         self._reporter.h += '<div class="row">\n'
@@ -56,15 +58,16 @@ class Row(object):
         pass
 
     def __exit__(self, type, value, traceback):
-        self._reporter.h += '</div>\n'
+        self._reporter.h += "</div>\n"
 
 
 class Column(object):
     """ The Column class creates a col in the report using a CSS grid """
+
     def __init__(self, reporter, size):
         self._reporter = reporter
         assert size >= 1 and size <= 11
-        col_sizes = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven']
+        col_sizes = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven"]
         size = col_sizes[size - 1]
         self._reporter.h += '<div class="%s columns">\n' % size
 
@@ -72,4 +75,4 @@ class Column(object):
         pass
 
     def __exit__(self, type, value, traceback):
-        self._reporter.h += '</div>\n'
+        self._reporter.h += "</div>\n"
