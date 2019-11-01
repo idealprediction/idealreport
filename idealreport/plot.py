@@ -124,6 +124,114 @@ class PlotSpec(object):
         else:
             return plot_dict
 
+    def amchart_plot(self, df, title=None, x_label=None, y_label=None, stacked=False, horizontal=False, custom_design=None, custom_data=None):
+        """ amchart_plot
+            Args:
+                df (DataFrame): df
+                title, x_label, y_label (str): plot labels (optional)
+                stacked (bool): True --> stacked bar chart (default False)
+                horizontal (bool): True / False --> horizontal / vertical bar
+                custom_design (dict): dictionary to customize the design
+                                      expecting keys in set(['layout', 'markers', 'widths'])
+                custom_data (dict): dictionary of custom data
+                                    expecting keys in set(['data_to_iterate', 'data_static'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
+        """
+
+        plot_type = "amchart_plot"
+
+        # plot specifications
+        plot_dict = {"data": [{"df": df, "type": plot_type}]}
+        plot_dict = self._customize_data(plot_dict=plot_dict, custom_data=custom_data)
+
+        # labels and customize the plot, if specified
+        expect = ["layout", "markers", "widths"]
+        plot_dict = self._customize_design(plot_dict=plot_dict, custom_design=custom_design, expect=expect)
+        plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
+        return self._process_output(plot_dict)
+
+    def amchart_line_plot(self, df, title=None, x_label=None, y_label=None, stacked=False, horizontal=False, custom_design=None, custom_data=None):
+        """ amchart_line_plot
+            Args:
+                df (DataFrame): df
+                title, x_label, y_label (str): plot labels (optional)
+                stacked (bool): True --> stacked bar chart (default False)
+                horizontal (bool): True / False --> horizontal / vertical bar
+                custom_design (dict): dictionary to customize the design
+                                      expecting keys in set(['layout', 'markers', 'widths'])
+                custom_data (dict): dictionary of custom data
+                                    expecting keys in set(['data_to_iterate', 'data_static'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
+        """
+
+        plot_type = "amchart_line_plot"
+
+        # plot specifications
+        plot_dict = {"data": [{"df": df, "type": plot_type}]}
+        plot_dict = self._customize_data(plot_dict=plot_dict, custom_data=custom_data)
+
+        # labels and customize the plot, if specified
+        expect = ["layout", "markers", "widths"]
+        plot_dict = self._customize_design(plot_dict=plot_dict, custom_design=custom_design, expect=expect)
+        plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
+        return self._process_output(plot_dict)
+
+    def amchart_semipie_plot(self, df, title=None, x_label=None, y_label=None, stacked=False, horizontal=False, custom_design=None, custom_data=None):
+        """ amchart_semipie_plot
+            Args:
+                df (DataFrame): df
+                title, x_label, y_label (str): plot labels (optional)
+                stacked (bool): True --> stacked bar chart (default False)
+                horizontal (bool): True / False --> horizontal / vertical bar
+                custom_design (dict): dictionary to customize the design
+                                      expecting keys in set(['layout', 'markers', 'widths'])
+                custom_data (dict): dictionary of custom data
+                                    expecting keys in set(['data_to_iterate', 'data_static'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
+        """
+
+        plot_type = "amchart_semipie_plot"
+
+        # plot specifications
+        plot_dict = {"data": [{"df": df, "type": plot_type}]}
+        plot_dict = self._customize_data(plot_dict=plot_dict, custom_data=custom_data)
+
+        # labels and customize the plot, if specified
+        expect = ["layout", "markers", "widths"]
+        plot_dict = self._customize_design(plot_dict=plot_dict, custom_design=custom_design, expect=expect)
+        plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
+        return self._process_output(plot_dict)
+
+    def amchart_gauge_plot(self, df, title=None, x_label=None, y_label=None, stacked=False, horizontal=False, custom_design=None, custom_data=None):
+        """ amchart_semipie_plot
+            Args:
+                df (DataFrame): df
+                title, x_label, y_label (str): plot labels (optional)
+                stacked (bool): True --> stacked bar chart (default False)
+                horizontal (bool): True / False --> horizontal / vertical bar
+                custom_design (dict): dictionary to customize the design
+                                      expecting keys in set(['layout', 'markers', 'widths'])
+                custom_data (dict): dictionary of custom data
+                                    expecting keys in set(['data_to_iterate', 'data_static'])
+            Returns:
+                plot_dict (dict): dictionary of plot specifications
+        """
+
+        plot_type = "amchart_gauge_plot"
+
+        # plot specifications
+        plot_dict = {"data": [{"df": df, "type": plot_type}]}
+        plot_dict = self._customize_data(plot_dict=plot_dict, custom_data=custom_data)
+
+        # labels and customize the plot, if specified
+        expect = ["layout", "markers", "widths"]
+        plot_dict = self._customize_design(plot_dict=plot_dict, custom_design=custom_design, expect=expect)
+        plot_dict = self._add_labels(plot_dict, title, x_label, y_label)
+        return self._process_output(plot_dict)
+
     def bar(self, df, title=None, x_label=None, y_label=None, stacked=False, horizontal=False, custom_design=None, custom_data=None):
         """ bar chart
             Args:

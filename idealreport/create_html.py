@@ -281,6 +281,37 @@ def prep_plot_spec(plot_spec):
     return plot_spec
 
 
+# ======== AMCharts plot spec ========
+def prep_amcharts_spec(plot_spec):
+    """ process the dictionary of plot specifications """
+
+    # make a copy of the plot spec (except data) so that we can re-generate
+    # a report without regenerating the plot specs
+    # (converting the data frames will take place only in this copy)
+    data_specs = plot_spec.get("data", [])
+    plot_spec = {k: v for (k, v) in plot_spec.items() if k != "data"}  # copy all but data
+    plot_spec["data"] = []  # This is the data going into the plot
+
+    # get original value for timestamp type
+    time_x = plot_spec.get("typeX", "none") == "timestamp"
+
+    # convert data frames
+    for ds in data_specs:
+        # check for timestamp index
+        df = ds["df"]
+        time_df = df.index.dtype == "datetime64[ns]"
+        if time_x and not time_df:
+            raise Exception("typeX is timestamp but df has non-timestamp index")
+        if time_df:
+            time_x = True
+
+        # create new data spec with df converted to dict/lists for json
+        new_data_spec = {k: v for (k, v) in ds.items() if k != "df"}  # copy all but df
+        new_data_spec["df"] = dataframe_to_dict(df)
+        plot_spec["data"].append(new_data_spec["df"])
+        return plot_spec
+
+
 # ======== utility functions ========
 
 
